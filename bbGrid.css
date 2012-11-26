@@ -1,0 +1,19 @@
+/* 
+    Document   : bbGrid
+    Created on : 23.11.2012, 9:55:05
+    Author     : dfi
+    Description:
+        bbGrid css...
+*/
+
+.bbGrid-grid { font-size: 11px }
+.bbGrid-grid th{ cursor:pointer }
+.bbGrid-grid td{ cursor: default; line-height: 11px }
+.bbGrid-grid .bbGrid-grid-head{ font-size: 12px }
+
+.bbGrid-container .table{ margin: 0 }
+.bbGrid-container .bbGrid-grid-nav{ margin: 0 }
+.bbGrid-container .pagination{ margin: 2px 0 0 }
+.bbGrid-container .bbGrid-grid-nav .bbGrid-page-input{ border-left: 0; padding: 1px; margin: 0; border-radius: 0; box-shadow: none; float:left; width: 19px; font-size: 12px;text-align: center }
+.bbGrid-navBar-buttonsContainer {margin: 2px 0 0}
+.bbGrid-navBar-buttonsContainer button{margin-right: 1px}
