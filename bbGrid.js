@@ -31,26 +31,29 @@ bbGrid.View = function(options){
     }
     
     this.collection.view = this;
-    if(this.autofetch){
-        var self = this;
-        this.collection.fetch({silent: true, success: function(){ self.display(); } });
-    }
-
-    this.collection.bind('reset', this.render);
+    
     this.on('selected', (this.subgrid) ? this.toggleSubgridRow : this.resetSelection);
     this.on('pageChanged', this.onPageChanged);
     this.on('sort', this.onSort);
     this.on('multiselect', this.onMultiselect);
     this.on('rowDblClick', this.onDblClick);
+
+    this.render();
+
+    if(this.autofetch){
+        var self = this;
+        this.toggleLoading(true);
+        this.collection.fetch({silent: true, success: function(){ self.render(); } });
+        
+        this.collection.on('change', this.renderPage, this);
+        this.collection.on('add', this.renderPage, this);
+        this.collection.on('remove', this.renderPage, this);
+    }
 };
 
 _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     tagName: 'div',
     className: 'bbGrid-container container',
-    display: function(){
-        this.render();
-        this.$el.appendTo(this.container);
-    },
     render: function(){
         console.log('Render', this);
         if(this.width) this.$el.css('width', this.width+'px');
@@ -77,7 +80,9 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.$navBar = this.navBar.render();
             this.$grid.after(this.$navBar);
             console.log('Pager created');
-        }
+        }        
+        
+        $(this.container).append(this.$el);
         
         this.renderPage();
         return this;
@@ -89,7 +94,6 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         return model.get(this.sortName).toLowerCase();
     },
     rsortBy: function(col){
-        console.log(col);
         var isSort = (this.sortName && this.sortName == col.name) ? false: true;
         this.sortName = col.name;
         var sortType = (col.sorttype)? col.sorttype : 'string';
@@ -119,14 +123,21 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         for(key in this.rowViews)
             this.rowViews[key].remove();
         this.rowViews = {};
-//        $('tbody', this.$el).html('');
+        $('tbody', this.$el).html('');
+    },
+    toggleLoading: function(isToToggle){
+        $('div.bbGrid-loading', this.$el).toggle(isToToggle);
     },
     showCollection: function(collection){
         var self = this;
-        this.clearGrid();
+        this.clearGrid();        
          _.each( collection, function(model) {
             self.renderRow(model);
         });
+        if(collection.length == 0){
+            console.log('123');
+            this.$grid.append('<tbody><tr><td colspan="'+this.colModel.length+'">Нет записей</td></tr></tbody>');
+        }
     },
     toggleSubgridRow: function(model, $el){
         if(this.$subgridContainer){
@@ -165,6 +176,9 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     renderPage: function(){
         var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
+        this.toggleLoading(false);
+        if(this.pager)
+            this.pager.render();
     },
     onSort: function(event){
         var $el = $(event.currentTarget);
@@ -224,10 +238,10 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         if(page && this.currPage != page){
             this.currPage = page;
             // set active
-            var liItems = $('div.bbGrid-pager li', this.$el);
+            $('div.bbGrid-pager li', this.$el).removeClass('active');
             $('.bbGrid-page-input', this.$pager).val(this.currPage);
-            liItems.removeClass('active');
-            $(liItems[page]).addClass('active');
+            
+//            $(liItems[page]).addClass('active');
             if(this.currPage == 1){
                 $('div.bbGrid-pager a.left,.first', this.$el).parent().addClass('active');
             }
@@ -329,7 +343,7 @@ _.extend(bbGrid.PagerView.prototype, Backbone.View.prototype, {
         }
         else this.view.currPage = 1;
        
-        var pager = _.template('<div class="span bbGrid-pager"><ul class="nav nav-pills"><li<%if(page == 1){%> class="active"<%}%>><a class="first">&nbsp;<i class="icon-step-backward"/></a></li><li <%if(page == 1){%> class="active"<%}%>><a class="left">&nbsp;<i class="icon-backward"/></a></li><li><div class="bbGrid-page-counter" style="float:left">Стр.</div><input class="bbGrid-page-input" value="<%=page%>" type="text"><div class="bbGrid-page-counter"> из <%=cntpages%> </div></li><li<%if(page == cntpages){%> class="active"<%}%>><a class="right">&nbsp;<i class="icon-forward"/></a></li><li<%if(page == cntpages){%> class="active"<%}%>><a class="last">&nbsp;<i class="icon-step-forward"/></a></ul></div><% if(rowlist){%><div class="bbGrid-page-counter" style="float:left; margin-top:2px">Cтрок на странице:</div><select class="bbGrid-pager-rowlist"><% _.each(rowlist, function(val){%><option <% if(rows == val){%>selected="selected"<%}%>><%=val%></option><%})%></select><%}%>');
+        var pager = _.template('<div class="span bbGrid-pager"><ul class="nav nav-pills"><li<%if(page == 1){%> class="active"<%}%>><a class="first"><i class="icon-step-backward"/></a></li><li <%if(page == 1){%> class="active"<%}%>><a class="left"><i class="icon-backward"/></a></li><li><div class="bbGrid-page-counter" style="float:left">Стр.</div><input class="bbGrid-page-input" value="<%=page%>" type="text"><div class="bbGrid-page-counter"> из <%=cntpages%> </div></li><li<%if(page == cntpages){%> class="active"<%}%>><a class="right"><i class="icon-forward"/></a></li><li<%if(page == cntpages){%> class="active"<%}%>><a class="last"><i class="icon-step-forward"/></a></ul></div><% if(rowlist){%><div class="bbGrid-page-counter" style="float:left; margin-top:2px">Cтрок на странице:</div><select class="bbGrid-pager-rowlist"><% _.each(rowlist, function(val){%><option <% if(rows == val){%>selected="selected"<%}%>><%=val%></option><%})%></select><%}%>');
         var pagerHtml = pager({page: this.view.currPage, cntpages: this.view.cntPages, rows: this.view.rows, rowlist: (this.view.rowList) ? this.view.rowList : false });
         this.$el.html(pagerHtml);
     },
@@ -395,7 +409,7 @@ _.extend(bbGrid.NavView.prototype, Backbone.View.prototype, {
             this.view.buttons = _.map(this.view.buttons, function(button){
                 button.onClick = _.bind(button.onClick, self.view.collection);
                 var btn = _.template('<button <%if(id){%>id="<%=id%>"<%}%> class="btn btn-mini" type="button"><%=title%></button>');
-                var btnHtml = btn(button);
+                var btnHtml = btn({id: button.id, title: button.title});
                 $button = $(btnHtml).click(button.onClick)
                     .appendTo($buttonsContainer);
                 return $button;
@@ -407,6 +421,7 @@ _.extend(bbGrid.NavView.prototype, Backbone.View.prototype, {
             this.view.$pager = this.view.pager.render();
             this.view.$pager.appendTo(this.$el);
         }
+        this.$el.append('<div class="offset"><div style="margin: 3px 0 0 0; display: none;" class="bbGrid-loading progress progress-info progress-striped active"><div style="width: 100%;" class="bar">Загрузка...</div></div></div>');
         return this.$el;
     }
 });
