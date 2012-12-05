@@ -7,16 +7,22 @@
 */
 
 .bbGrid-grid { font-size: 11px }
-.bbGrid-grid td{ cursor: default; line-height: 11px }
-.bbGrid-grid .bbGrid-grid-head{font-size: 12px;background-color: #F5F5F5;background-image: linear-gradient(to bottom, #FFFFFF, #E6E6E6);background-repeat: repeat-x;cursor: pointer}
+.bbGrid-grid td{ cursor: default; line-height: 12px }
+.bbGrid-grid .bbGrid-grid-head{font-size: 12px;background-color: #F5F5F5;
+/*                 background-image: linear-gradient(to bottom, #FFFFFF, #E6E6E6);*/
+                 background-repeat: repeat-x;cursor: pointer}
 .bbGrid-grid .bbGrid-grid-head i{ float: right}
+.bbGrid-grid .bbGrid-actions-cell { padding: 2px 5px; text-align: center}
+.bbGrid-grid .bbGrid-subgrid-control { padding: 2px 5px; text-align: center}
 .bbGrid-container {width: auto}
+.bbGrid-container .bbGrid-loading{ margin: 3px 0 2px 40%;width: 20% }
+.bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%}
 .bbGrid-container .table{ margin: 0 }
-.bbGrid-container .bbGrid-pager-container{height: 26px}
+.bbGrid-container .bbGrid-pager-container{height: 26px; width: 380px; left: 50%; margin-left:-190px; position: absolute}
 .bbGrid-container .bbGrid-grid-nav{
     margin: 0;
     background-color: #F5F5F5;
-    background-image: linear-gradient(to bottom, #FFFFFF, #E6E6E6);
+/*    background-image: linear-gradient(to bottom, #FFFFFF, #E6E6E6);*/
     background-repeat: repeat-x;
     border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) #A2A2A2;
     border-image: none;
@@ -29,12 +35,14 @@
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
     vertical-align: middle
 }
+.bbGrid-container .bbGrid-subgrid-row:hover{ background-color: transparent}
 .bbGrid-container .bbGrid-pager{ margin: 2px 0 0; cursor: pointer}
 .bbGrid-container .bbGrid-pager .nav{ margin-bottom: 0; padding-bottom: 0}
 .bbGrid-container .bbGrid-pager i{ margin: 0}
 .bbGrid-container .bbGrid-pager a{ margin: 0 1px; padding: 4px; border: 1px solid #CCCCCC}
 .bbGrid-container .bbGrid-pager li.active a{ background-color:#F5F5F5}
 .bbGrid-container .bbGrid-page-counter {float: right; font-size: 11px; padding: 2px 0px 0px 4px}
+.bbGrid-container .bbGrid-grid-nav {position: relative}
 .bbGrid-container .bbGrid-grid-nav .bbGrid-page-input{padding: 1px; margin: 0 0 0 1px; width: 30px; font-size: 11px;text-align: center }
 .bbGrid-navBar-buttonsContainer {margin: 2px 0 0}
 .bbGrid-navBar-buttonsContainer button{margin-right: 1px}
