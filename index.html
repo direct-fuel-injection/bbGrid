@@ -8,8 +8,19 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
-    <!--[if lt IE 9]>
+  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+	
+	<link rel="stylesheet" type="text/css" href="stylesheets/bbGrid.css">
+	
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>	
+	<script type="text/javascript" src="https://raw.github.com/documentcloud/underscore/master/underscore-min.js"></script>
+	<script type="text/javascript" src="https://raw.github.com/documentcloud/backbone/master/backbone-min.js"></script>
+	<script type="text/javascript" src="https://raw.github.com/direct-fuel-injection/bbGrid/master/bbGrid.js"></script>
+	
+	<script type="text/javascript" src="javascripts/main.js"></script>
+	
+	
+    <!--[if lt IE 9]>	
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
@@ -44,42 +55,9 @@
 
 <p>Include bbGrid.js and bbGrid.css into your project. Use it!</p>
 
-<h3>Example</h3>
+<h3>Working example on 10000 rows</h3>
+<div id="bbGrid-example"></div>
 
-<pre><code>//create your own model
-App.pimModel = Backbone.Model.extend({
-});
-//create your own collection
-App.pimsCollection = Backbone.Collection.extend({
-    url: 'ajax?type=getbanks&amp;clear=1',
-    model: App.pimModel
-});
-
-App.banks = new App.banksCollection();
-
-//create your bbGrid
-var banksView = new bbGrid.View({
-    caption: 'Bank list',
-    container: $('#banks'),
-    width: 800,
-    collection: App.banks,
-    rows: 25,
-    colNames: ['Id', 'Bank Name'],
-    colModel: [
-        {name: 'id', sorttype: 'number'},
-        {name: 'bankname'}
-    ],
-    multiselect: true,
-    subgrid: true,
-    buttons: {
-        'Add new bank': function(){
-        },
-        'Bank content': function(){
-
-        }
-    }
-});
-</code></pre>
 
 <blockquote>
 <h2>Thanks for using it!</h2>
