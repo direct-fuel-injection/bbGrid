@@ -1,4 +1,5 @@
-bbGrid v0.1b
+
+[bbGrid](http://direct-fuel-injection.github.com/bbGrid/)
 ====================
 
 That's an extendable grid system (jqGrid like) developed on Backbone.js, Twitter Bootstrap and jQuery frameworks.
@@ -17,38 +18,22 @@ Quick Start
 Include bbGrid.js and bbGrid.css into your project. Use it!
 
 ### Example
-    
-    //create your own model
-    App.pimModel = Backbone.Model.extend({
-    });
-    //create your own collection
-    App.pimsCollection = Backbone.Collection.extend({
-        url: 'ajax?type=getbanks&clear=1',
-        model: App.pimModel
-    });
+[Demonstration of bbGrid on 10000 rows](http://direct-fuel-injection.github.com/bbGrid/)
 
-    App.banks = new App.banksCollection();
-    
-    //create your bbGrid
-    var banksView = new bbGrid.View({
-        caption: 'Bank list',
+    var banksView = new bbGrid.View({        
         container: $('#banks'),
         width: 800,
-        collection: App.banks,
-        rows: 25,
-        colNames: ['Id', 'Bank Name'],
+        collection: YourCollectionHere,
+        rows: 25,       
         colModel: [
-            {name: 'id', sorttype: 'number'},
-            {name: 'bankname'}
+            {title: 'ID', name: 'id', sorttype: 'number'},
+            {title: 'Bank Name', name: 'bankname'}
         ],
+        autofetch: true,
         multiselect: true,
-        subgrid: true,
+        subgrid: false,
         buttons: {
-            'Add new bank': function(){
-            },
-            'Bank content': function(){
-                
-            }
+            'Add new bank': function(){ /* your code here */ }            
         }
     });
 
