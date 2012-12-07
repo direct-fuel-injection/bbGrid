@@ -14,7 +14,6 @@ $(function(){
     var models;
     $.getJSON("example.json", function(json) {
         models = json.result;
-	MyCollection.models= models;
-	MyCollection.trigger('reset');
+	MyCollection =new Backbone.Collection(models);
     });
 });
