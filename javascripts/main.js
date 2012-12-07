@@ -14,6 +14,6 @@ $(function(){
     var models;
     $.getJSON("example.json", function(json) {
         models = json.result;
-	MyCollection.add(models);
+	MyCollection.models= models;
     });
 });
