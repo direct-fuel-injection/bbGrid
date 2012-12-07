@@ -17,5 +17,5 @@ $(function(){
         console.log(models);
 	MyCollection.models = models;	
     });
-    MyCollection.trigger('change');
+    MyGrid.renderPage();
 });
