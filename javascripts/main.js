@@ -1,6 +1,15 @@
-$(function(){
-    var MyCollection = new Backbone.Collection();
-    var MyGrid = new bbGrid.View({
+$(function(){  
+    var models;
+    $.getJSON("example.json", function(json) {
+        models = json.result;
+		var model = Backbone.Model.extend();
+		var collection = Backbone.Collection.extend({
+			model: model
+		});		
+
+		var MyCollection = new collection(models);
+		console.log(MyCollection);
+		var MyGrid = new bbGrid.View({
 			container: $('#bbGrid-example'),
 			width: 700,
 			rows: 25,
@@ -11,11 +20,5 @@ $(function(){
 				{title: 'Company', name: 'company'},            
 				{title: 'Email', name: 'email'}]
 		});
-    var models;
-    $.getJSON("example.json", function(json) {
-        models = json.result;
-        console.log(models);
-	MyCollection.models = models;	
     });
-    MyGrid.renderPage();
 });
