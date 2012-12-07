@@ -15,6 +15,7 @@ $(function(){
     $.getJSON("example.json", function(json) {
         models = json.result;
         console.log(models);
-	MyCollection.models = models;
+	MyCollection.models = models;	
     });
+    MyCollection.trigger('change');
 });
