@@ -13,12 +13,12 @@ $(function(){
 			container: $('#bbGrid-example'),
 			width: 700,
 			rows: 25,
-			rowList: [25,50, 100, 250, 500],
+			//rowList: [25,50, 100, 250, 500],
 			collection: MyCollection,
-			colModel: [{title: 'Ид', name: 'id', sorttype: 'number'},
-				{title: 'ФИО', name: 'name'},
-				{title: 'Компания', name: 'company'},            
-				{title: 'Электронный адрес', name: 'email'}]
+			colModel: [{title: 'ID', name: 'id', sorttype: 'number'},
+				{title: 'Full Name', name: 'name'},
+				{title: 'Company', name: 'company'},            
+				{title: 'Email', name: 'email'}]
 		});
     });
 });
