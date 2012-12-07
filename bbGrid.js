@@ -87,7 +87,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.navBar = new bbGrid.NavView({view: this});
             this.$navBar = this.navBar.render();
             this.$grid.after(this.$navBar);
-            this.$navBar.prepend('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">Загрузка...</div></div>');
+            this.$loading = $('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">Загрузка...</div></div>');
+            this.$navBar.prepend(this.$loading);
         }        
         
         $(this.container).append(this.$el);
@@ -138,7 +139,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.$buttonsContainer.toggle(!isToToggle);
         if(this.$pager)
             this.$pager.toggle(!isToToggle);
-        $('div.bbGrid-loading', this.$el).toggle(isToToggle);
+        this.$loading.toggle(isToToggle);
     },
     showCollection: function(collection){
         var self = this;
@@ -308,9 +309,9 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         this.view.trigger("rowDblClick", this.model, this.$el);
     },
     setSelection: function(options){
+        options = (options) ? options : {};
         if(options.currentTarget && options.currentTarget.className == 'bbGrid-actions-cell')
             return false;
-
         this.view.trigger("selected", this.model, this.$el, options);
         this.$el.addClass('warning');
         
