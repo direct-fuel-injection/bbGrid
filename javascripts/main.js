@@ -15,5 +15,6 @@ $(function(){
     $.getJSON("example.json", function(json) {
         models = json.result;
 	MyCollection.models= models;
+	MyCollection.trigger('reset');
     });
 });
