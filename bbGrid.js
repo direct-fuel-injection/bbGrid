@@ -18,9 +18,9 @@ bbGrid.View = function(options) {
         alert((1000 * (end.getSeconds() - start.getSeconds()) + end.getMilliseconds() - start.getMilliseconds()).toString() + "ms to render");
     }
     
-    this.events =  {
-        'keyup input[name=search]': 'onSearch'
-    };
+//    this.events =  {
+//        'keyup input[name=search]': 'onSearch'
+//    };
 
     this.rowViews = {};
     this.selectedRows = [];
@@ -42,7 +42,7 @@ bbGrid.View = function(options) {
     this.on('checkall', this.onCheckAll);
     this.on('rowDblClick', this.onDblClick);
 
-    this.render();    
+    this.render();
 
     if(this.autofetch){
         var self = this;
@@ -52,11 +52,9 @@ bbGrid.View = function(options) {
         this.autofetch = false;
     }
     
-    this.collection.on('change', this.renderPage, this);
     this.collection.on('reset', this.renderPage, this);
-    this.collection.on('add', this.renderPage, this);
-    this.collection.on('remove', this.renderPage, this);
-
+    this.collection.on('add', this.rowsHandler, this);
+//    this.collection.on('change', this.rowsHandler, this);
 };
 
 _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
@@ -89,7 +87,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.$grid.after(this.$navBar);
             this.$loading = $('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">Загрузка...</div></div>');
             this.$navBar.prepend(this.$loading);
-        }        
+        }
         
         $(this.container).append(this.$el);
         
@@ -102,9 +100,9 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     stringComparator: function(model){
         return model.get(this.sortName).toLowerCase();
     },
-    rsortBy: function(col){
+    rsortBy: function(col){        
         var isSort = (this.sortName && this.sortName == col.name) ? false: true;
-        this.sortName = col.name;
+        this.sortName = col.name;        
         var sortType = (col.sorttype)? col.sorttype : 'string';
         this.sortOrder = (this.sortOrder == 'asc') ? 'desc' : 'asc';
         var boundComparator;
@@ -129,8 +127,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         return interval;
     },
     clearGrid: function(){
-        for(key in this.rowViews)
-            this.rowViews[key].remove();
+        for(key in this.rowViews) this.rowViews[key].remove();
         this.rowViews = {};
         $('tbody', this.$el).html('');
     },
@@ -147,8 +144,10 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
          _.each( collection, function(model) {
             self.renderRow(model);
         });
-        if(collection.length == 0 && !this.autofetch)
-            this.$grid.append('<tbody><tr><td colspan="'+this.colModel.length+'">Нет записей</td></tr></tbody>');        
+        if(collection.length == 0 && !this.autofetch){
+            var colspan = (this.multiselect) ? this.colModel.length+1 : this.colModel.length;
+            this.$grid.append('<tbody><tr class="bbGrid-noRows"><td colspan="'+colspan+'">Нет записей</td></tr></tbody>');
+        }
     },
     setRowSelected: function(options){
         
@@ -189,15 +188,20 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
                 this.rowViews[key].trigger('select');
         }
     },
+    rowsHandler: function(model, collection, options, el){
+        if(collection.length == options.index+1)
+            this.renderPage();
+    },
     renderRow: function(model){
-        var rowView = new bbGrid.RowView({model: model, view: this});
-        this.$grid.append(rowView.render().el);
-        this.rowViews[model.id] = rowView;
+        if(this.rows == _.size(this.rowViews))
+            return false;
+        this.rowViews[model.id] = new bbGrid.RowView({model: model, view: this});
+        this.$grid.append(this.rowViews[model.id].render().el);
     },
     renderPage: function(){
-        if(this.pager)
-            this.pager.render();
-
+        this.toggleLoading(true);
+        if(this.pager) this.pager.render();
+        
         var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
 
@@ -210,7 +214,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         $('thead th i', this.$el).removeClass();
         
         var col = _.find(this.colModel, function(col){return col.title == $el.text();});
-        if(!col) return false;
+        if(!col || (col && col.name == 'bbGrid-actions-cell'))
+            return false;
         this.rsortBy(col);
         
         if(this.sortOrder == 'asc')
@@ -220,18 +225,18 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
 
         this.renderPage();
     },
-    onSearch: function(event){
-        var $el = $(event.target);
-        var text = $el.val();
-        if (text){
-            var pattern = new RegExp(text,"gi");
-            var collection = _(this.collection.filter(function(data) {
-                return pattern.test(data.get("bankname"));
-            }));
-            this.showCollection(collection._wrapped);
-        }else
-            this.renderPage();
-    },
+//    onSearch: function(event){
+//        var $el = $(event.target);
+//        var text = $el.val();
+//        if (text){
+//            var pattern = new RegExp(text,"gi");
+//            var collection = _(this.collection.filter(function(data) {
+//                return pattern.test(data.get("bankname"));
+//            }));
+//            this.showCollection(collection._wrapped);
+//        }else
+//            this.renderPage();
+//    },
     onDblClick: function(model, $el){
         if(this.onRowDblClick)
             this.onRowDblClick(model);
@@ -301,10 +306,23 @@ bbGrid.RowView = function(options){
     /* alias to bbGrid.View*/
     this.view = options.view;
     this.on('select', this.setSelection);
+    this.model.on('remove', this.modelRemoved, this);
 };
 
 _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
     tagName: 'tr',
+    modelRemoved: function(model, collection, options){
+        var self = this;
+        this.view.selectedRows = _.reject(this.view.selectedRows,
+            function(rowId){ return rowId == self.model.id; }
+        );
+        this.remove();
+    },
+    remove: function(){
+        this.model.off();
+        this.$el.remove();
+        return this;
+    },
     onDblClick: function(event){
         this.view.trigger("rowDblClick", this.model, this.$el);
     },
