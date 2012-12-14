@@ -17,7 +17,7 @@ bbGrid.View = function(options) {
         var end = new Date();
         alert((1000 * (end.getSeconds() - start.getSeconds()) + end.getMilliseconds() - start.getMilliseconds()).toString() + "ms to render");
     }
-    
+
 //    this.events =  {
 //        'keyup input[name=search]': 'onSearch'
 //    };
@@ -88,10 +88,9 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.$loading = $('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">Загрузка...</div></div>');
             this.$navBar.prepend(this.$loading);
         }
-        
         $(this.container).append(this.$el);
         
-        this.renderPage();
+        this.renderPage();        
         return this;
     },      
     numberComparator: function(model) {
@@ -120,10 +119,14 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     },
     getIntervalByPage: function (page){
         var interval = {};
-        interval.s = (page - 1) * this.rows;
-        interval.e = page * this.rows;
-        if( interval.e > this.collection.length)
-            interval.e = this.collection.length;
+        if(this.rows){
+            interval.s = (page - 1) * this.rows;
+            interval.e = page * this.rows;
+            if( interval.e > this.collection.length)
+                interval.e = this.collection.length;
+        }
+        else
+            interval = {s:0, e:this.collection.length};
         return interval;
     },
     clearGrid: function(){
@@ -132,11 +135,14 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         $('tbody', this.$el).html('');
     },
     toggleLoading: function(isToToggle){
+        this.$navBar.show();
         if(this.$buttonsContainer)
             this.$buttonsContainer.toggle(!isToToggle);
         if(this.$pager)
             this.$pager.toggle(!isToToggle);
         this.$loading.toggle(isToToggle);
+        if(!this.rows && !this.buttons && !isToToggle)
+            this.$navBar.hide();
     },
     showCollection: function(collection){
         var self = this;
@@ -145,7 +151,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             self.renderRow(model);
         });
         if(collection.length == 0 && !this.autofetch){
-            var colspan = (this.multiselect) ? this.colModel.length+1 : this.colModel.length;
+            var colspan = (this.multiselect || this.subgrid) ? this.colModel.length+1 : this.colModel.length;
             this.$grid.append('<tbody><tr class="bbGrid-noRows"><td colspan="'+colspan+'">Нет записей</td></tr></tbody>');
         }
     },
@@ -153,8 +159,10 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         
     },
     toggleSubgridRow: function(model, $el, options){
-        options = (options == undefined) ? {} : options;
+        options = options || {};
         var View = (this.subgridAccordion) ? this : this.rowViews[model.id];
+        if(this.subgridAccordion)
+            $('tr', this.$el).removeClass('warning');
         if(View.$subgridContainer){
             $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('icon-minus');
 
@@ -199,9 +207,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         this.$grid.append(this.rowViews[model.id].render().el);
     },
     renderPage: function(){
-        this.toggleLoading(true);
-        if(this.pager) this.pager.render();
-        
+        this.toggleLoading(true);        
+        if(this.rows && this.pager) this.pager.render();
         var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
 
@@ -284,7 +291,6 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     resetSelection: function(model){
         if(!this.multiselect)
             $('tr', this.$el).removeClass('warning');
-        
     },
     getSelectedModels: function(){
         var self = this;
@@ -307,6 +313,7 @@ bbGrid.RowView = function(options){
     this.view = options.view;
     this.on('select', this.setSelection);
     this.model.on('remove', this.modelRemoved, this);
+    this.model.on('change', this.modelChanged, this);
 };
 
 _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
@@ -323,26 +330,33 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         this.$el.remove();
         return this;
     },
+    modelChanged: function(){
+        this.render();
+        if(this.view.onReady && !this.view.autofetch)
+            this.view.onReady();
+    },
     onDblClick: function(event){
         this.view.trigger("rowDblClick", this.model, this.$el);
     },
     setSelection: function(options){
-        options = (options) ? options : {};
+        options = options || {};
         if(options.currentTarget && options.currentTarget.className == 'bbGrid-actions-cell')
             return false;
+//        if(this.view.subgrid && options.currentTarget.className == 'bbGrid-actions-cell')
         this.view.trigger("selected", this.model, this.$el, options);
         this.$el.addClass('warning');
         
         if(this.view.multiselect || this.view.subgrid){
             this.selected = (this.selected) ? false : true;
             $('input[type=checkbox]', this.$el).attr('checked', this.selected);
+            this.selected = options.isShow || this.selected;
             if(!this.selected && !options.isShown)  this.$el.removeClass('warning');
         }
         else
             this.selected = true;
         
-        if(this.selected)
-            if(this.view.multiselect)
+        if(this.selected || options.isShown)
+            if(this.view.multiselect || (this.view.subgrid && !this.view.subgridAccordion))
                 this.view.selectedRows.push(this.model.id);
             else
                 this.view.selectedRows = [this.model.id];
@@ -496,7 +510,7 @@ _.extend(bbGrid.NavView.prototype, Backbone.View.prototype, {
             });
             this.$el.append(this.view.$buttonsContainer);
         }
-        if(!this.view.$pager){
+        if(!this.view.$pager && this.view.rows){
             this.view.pager = new bbGrid.PagerView({view: this.view});
             this.view.$pager = this.view.pager.render();
             this.view.$pager.appendTo(this.$el);
