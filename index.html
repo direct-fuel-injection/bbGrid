@@ -137,7 +137,7 @@
                             <tr>
                                 <td>rows</td>
                                 <td>number</td>
-                                <td>Sets how many records we want to view in the grid.</td>
+                                <td>Sets how many records we want to view in the grid. If rows is undefined all of records will be in one page and no rowPager displayed.</td>
                                 <td>none</td>
                             </tr>
                             <tr>
@@ -169,6 +169,14 @@
                     <h3>Methods</h3>
                     Soon...
                     <h3>Events</h3>
+                    That example specifies the action to take when a grid complete. The events that you can use to perform some additional action are below in table:
+                    <pre>new bbGrid.View({
+...
+   onReady: function(){       
+      // whatever you need
+   },
+...
+});</pre>
                     <table class="bbGrid-grid table table-bordered">
                         <thead class="bbGrid-grid-head">
                             <tr>
