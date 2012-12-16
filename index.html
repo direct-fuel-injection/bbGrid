@@ -94,6 +94,17 @@
                                 <td>false</td>
                             </tr>
                             <tr>
+                                <td>buttons</td>
+                                <td>array of objects</td>
+                                <td>Sets buttons bottom-left in navigation bar. this context in onClick function will be an alias to collection. When initialization of grid completed each button can access from myGrid.buttons (array of jQuery objects).<br>Example:<br>[{<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;'id': 'myBtnID',<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;'title': 'Add new row',<br> 
+                                    &nbsp;&nbsp;&nbsp;&nbsp;onClick: function(event){ /* any code here */ }<br>
+}]
+                                </td>
+                                <td>none</td>
+                            </tr>
+                            <tr>
                                 <td>caption</td>
                                 <td>string</td>
                                 <td>Defines the caption for the grid. Caption tag appears in the table tag, which is above the thead tag.</td>
@@ -103,19 +114,19 @@
                                 <td>collection</td>
                                 <td>Backbone.Collection</td>
                                 <td>It's all yours. Grid only stores alias and keep an eye on events(add, remove, change, reset)</td>
-                                <td>None</td>
+                                <td>none</td>
                             </tr>
                             <tr>
                                 <td>colModel</td>
                                 <td>array</td>
                                 <td>An array that describes the model of the columns.<br>name: The attribute name of model in collection.<br>title: Caption of column in header.<br>sorttype: Can be number or string(others later).<br>actions: function must return html, that pastes into each cell of row in that column (Click events disabled onto that cell).</td>
-                                <td>None</td>
+                                <td>none</td>
                             </tr>
                             <tr>
                                 <td>container</td>
                                 <td>jQuery object</td>
                                 <td>This must be jQuery object, that will contain grid.</td>
-                                <td>None</td>
+                                <td>none</td>
                             </tr>
                             <tr>
                                 <td>multiselect</td>
@@ -127,13 +138,13 @@
                                 <td>rows</td>
                                 <td>number</td>
                                 <td>Sets how many records we want to view in the grid.</td>
-                                <td>None</td>
+                                <td>none</td>
                             </tr>
                             <tr>
                                 <td>rowList</td>
                                 <td>number</td>
                                 <td>An array to construct a select box element in the pager in which we can change the number of the visible rows.</td>
-                                <td>None</td>
+                                <td>none</td>
                             </tr>
                             <tr>
                                 <td>selectedRows</td>
@@ -158,7 +169,37 @@
                     <h3>Methods</h3>
                     Soon...
                     <h3>Events</h3>
-                    Soon...
+                    <table class="bbGrid-grid table table-bordered">
+                        <thead class="bbGrid-grid-head">
+                            <tr>
+                                <td>Event</td>
+                                <td>Parameters</td>
+                                <td>Description</td>                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>onReady</td>
+                                <td>none</td>
+                                <td>This fires after all the data is loaded into the grid and all other processes are complete.</td>                                
+                            </tr>
+                            <tr>
+                                <td>onRowClick</td>
+                                <td>model</td>
+                                <td>Raised immediately after row was clicked.</td>                                
+                            </tr>
+                            <tr>
+                                <td>onRowDblClick</td>
+                                <td>model</td>
+                                <td>Raised immediately after row was double clicked.</td>                                
+                            </tr>
+                            <tr>
+                                <td>onRowExpanded</td>
+                                <td>container,model.id</td>
+                                <td>This event is raised when the subgrid is enabled and is executed when the user clicks on the plus icon of the grid. Can be used to put custom data in the subgrid. Parameter container represents table td wrapped in jQuery object.</td>                                
+                            </tr>
+                        </tbody>
+                    </table>
                     <h2>Examples</h2>
                     <h3>An example of simple grid with 10000 rows</h3>
                     <div id="bbGrid-example"></div>
