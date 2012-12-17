@@ -19,6 +19,7 @@
 .bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%}
 .bbGrid-container .table{ margin: 0 }
 .bbGrid-container .bbGrid-pager-container{height: 26px; width: 380px; left: 50%; margin-left:-190px; position: absolute}
+.bbGrid-container .bbGrid-pager-container-norowslist{width: 200px; margin-left:-100px}
 .bbGrid-container .bbGrid-grid-nav{
     margin: 0;
     background-color: #F5F5F5;
