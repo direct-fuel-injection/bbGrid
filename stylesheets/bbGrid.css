@@ -1,4 +1,4 @@
-/* 
+/*
     Document   : bbGrid
     Created on : 23.11.2012, 9:55:05
     Author     : dfi
@@ -19,6 +19,7 @@
 .bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%}
 .bbGrid-container .table{ margin: 0 }
 .bbGrid-container .bbGrid-pager-container{height: 26px; width: 380px; left: 50%; margin-left:-190px; position: absolute}
+.bbGrid-container .bbGrid-pager-container-norowslist{width: 200px; margin-left:-100px}
 .bbGrid-container .bbGrid-grid-nav{
     margin: 0;
     background-color: #F5F5F5;
@@ -29,7 +30,7 @@
     border-style: solid;
     border-width: 1px;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
-    color: #333333;    
+    color: #333333;
     padding: 0 0 1px 1px;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
     vertical-align: middle;

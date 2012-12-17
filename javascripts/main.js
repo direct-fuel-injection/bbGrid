@@ -8,10 +8,10 @@ $(function(){
         rows: 25,
         rowList: [25,50, 100, 250, 500],
         collection: MyCollection,
-        colModel: [{ title: 'ID', name: 'id', sorttype: 'number' },
-                   { title: 'Full Name', name: 'name' },
-                   { title: 'Company', name: 'company' },
-                   { title: 'Email', name: 'email' }
+        colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
+                   { title: 'Full Name', index: true, name: 'name' },
+                   { title: 'Company', index: true, name: 'company' },
+                   { title: 'Email', index: true, name: 'email' }
         ]
     });
     var MyGrid2 = new bbGrid.View({
@@ -22,18 +22,19 @@ $(function(){
         collection: companies,
         subgrid: true,
         subgridAccordion: true,
-        colModel: [ { title: 'Company', name: 'company' } ],
+        colModel: [ { title: 'Company',  index: true, name: 'company' } ],
         onRowExpanded: function($el, rowid) {                
             var subgridCollection = new Backbone.Collection(MyCollection.where({'company' : companies.at(rowid).get('company')}));
             var subgrid = new bbGrid.View({
                 container: $el,
                 rows: 10,
-                rowList: [10,50,100, 250, 500],
+//                rowList: [10,50,100, 250, 500],
+//                multiselect: true,
                 collection: subgridCollection,                    
-                colModel: [ { title: 'Full Name', name: 'name' },
-                   { title: 'Age', name: 'age', sorttype: 'number' },
-                   { title: 'Address', name: 'address' },
-                   { title: 'Email', name: 'email' }
+                colModel: [ { title: 'Full Name', index: true,  name: 'name' },
+                   { title: 'Age', name: 'age',  index: true, sorttype: 'number' },
+                   { title: 'Address',  index: true, name: 'address' },
+                   { title: 'Email',  index: true, name: 'email' }
                 ]
             });
         }
