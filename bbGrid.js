@@ -1,8 +1,7 @@
-/* 
+/*
  * Backbone.js + Bootstrap GridЋ  by dfi; 21.11.2012
  *
  */
-
 
 var bbGrid = {};
 
@@ -74,7 +73,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         if(this.width) this.$el.css('width', this.width+'px');
         
         if(!this.$grid){
-            this.$grid = $('<table class="bbGrid-grid table table-hover table-bordered table-condensed" />');
+            this.$grid = $('<table class="bbGrid-grid table table-bordered table-condensed" />');
             if(this.caption)
                 this.$grid.append('<caption>'+this.caption+'</caption>');
             this.$grid.appendTo(this.el);
@@ -183,8 +182,11 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
                 delete View.$subgridContainer;
             }
             
-            if (View.expandedRowId == model.id && !options.isShown)
+            if (View.expandedRowId == model.id && !options.isShown){
+                if(this.onRowCollapsed)
+                    this.onRowCollapsed($('td',View.$subgridContainer)[1], model.id);
                 return false;
+            }
         }
 
         $('td.bbGrid-subgrid-control i', $el).addClass('icon-minus');
@@ -202,13 +204,12 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     onCheckAll: function(event){
         var checked = $(event.target).is(':checked');        
         for (key in this.rowViews){
-            console.log(checked, this.rowViews[key].selected);
             if(this.rowViews[key].selected != checked)
                 this.rowViews[key].trigger('select');
         }
     },
     rowsHandler: function(model, collection, options, el){
-        if(collection.length == options.index+1)
+        if((options && collection.length == options.index+1) || options == undefined)
             this.renderPage();
     },
     renderRow: function(model){
@@ -306,7 +307,6 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         var self = this;
         return _.map(this.selectedRows, function(id){ return self.collection.get(id)});
     }
-
 });
 
 bbGrid.View.extend = Backbone.View.extend;
@@ -314,8 +314,8 @@ bbGrid.View.extend = Backbone.View.extend;
 /* View of Model */
 bbGrid.RowView = function(options){
     this.events = {
-        "click td": "setSelection",
-        "dblclick td": "onDblClick"
+        "click td[class!=bbGrid-actions-cell]": "setSelection",
+        "dblclick td[class!=bbGrid-actions-cell]": "onDblClick"
 //        "click input[type=checkbox]": "setSelection"
     };
     Backbone.View.apply(this, [options]);
@@ -328,6 +328,7 @@ bbGrid.RowView = function(options){
 
 _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
     tagName: 'tr',
+    className: 'bbGrid-row',
     modelRemoved: function(model, collection, options){
         var self = this;
         this.view.selectedRows = _.reject(this.view.selectedRows,
@@ -350,10 +351,20 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
     },
     setSelection: function(options){
         options = options || {};
-        if(options.currentTarget && options.currentTarget.className == 'bbGrid-actions-cell')
+        var target = options.currentTarget || undefined;
+        var className = (target) ? target.className : undefined;
+//        if(className == 'bbGrid-actions-cell')
+//            return false;
+
+//        if(this.view.subgrid)
+//           this.expanded = (this.expanded) ? false : true;
+
+        if(!(this.view.multiselect && this.view.subgrid && className != 'bbGrid-subgrid-control'))
+            this.view.trigger("selected", this.model, this.$el, options);
+        
+        if(this.view.multiselect && className == 'bbGrid-subgrid-control')
             return false;
-//        if(this.view.subgrid && options.currentTarget.className == 'bbGrid-actions-cell')
-        this.view.trigger("selected", this.model, this.$el, options);
+
         this.$el.addClass('warning');
         
         if(this.view.multiselect || this.view.subgrid){
@@ -365,6 +376,7 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         else
             this.selected = true;
         
+
         if(this.selected || options.isShown)
             if(this.view.multiselect || (this.view.subgrid && !this.view.subgridAccordion))
                 this.view.selectedRows.push(this.model.id);
@@ -383,7 +395,17 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
     },
     render: function(){
         var self = this;
-        var row = _.template('<% if(isMultiselect){%><td><input type="checkbox" <% if(isChecked){%>checked="checked"<%}%>></td><%} if(isContainSubgrid){%><td class="bbGrid-subgrid-control"><i class="icon-plus"></td><%} _.each(values, function(row){%><td <% if(row.name == "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>><%=row.value%></td><%})%>');
+        var row = _.template('<% if(isMultiselect){%>\
+            <td><input type="checkbox" <% if(isChecked){%>checked="checked"<%}%>></td>\
+            <%} if(isContainSubgrid){%>\
+                <td class="bbGrid-subgrid-control">\
+                    <i class="icon-plus">\
+                </td>\
+                <%} _.each(values, function(row){%>\
+                    <td <% if(row.name == "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>>\
+                        <%=row.value%>\
+                    </td>\
+                <%})%>');
         var cols = _.filter(this.view.colModel, function(col){ return !col.hidden; });
         var isChecked = ($.inArray(this.model.id, this.view.selectedRows) >= 0);
         var html = row( {
@@ -442,7 +464,35 @@ _.extend(bbGrid.PagerView.prototype, Backbone.View.prototype, {
         }
         else this.view.currPage = 1;
        
-        var pager = _.template('<div class="span bbGrid-pager"><ul class="nav nav-pills"><li<%if(page == 1){%> class="active"<%}%>><a class="first"><i class="icon-step-backward"/></a></li><li <%if(page == 1){%> class="active"<%}%>><a class="left"><i class="icon-backward"/></a></li><li><div class="bbGrid-page-counter" style="float:left">Стр.</div><input class="bbGrid-page-input" value="<%=page%>" type="text"><div class="bbGrid-page-counter"> из <%=cntpages%> </div></li><li<%if(page == cntpages){%> class="active"<%}%>><a class="right"><i class="icon-forward"/></a></li><li<%if(page == cntpages){%> class="active"<%}%>><a class="last"><i class="icon-step-forward"/></a></ul></div><% if(rowlist){%><div class="bbGrid-page-counter" style="float:left; margin-top:2px">Cтрок на странице:</div><select class="bbGrid-pager-rowlist"><% _.each(rowlist, function(val){%><option <% if(rows == val){%>selected="selected"<%}%>><%=val%></option><%})%></select><%}%>');
+        var pager = _.template('<div class="span bbGrid-pager">\
+            <ul class="nav nav-pills">\
+                <li<%if(page == 1){%> class="active"<%}%>>\
+                    <a class="first"><i class="icon-step-backward"/></a>\
+                </li>\
+                <li <%if(page == 1){%> class="active"<%}%>>\
+                    <a class="left"><i class="icon-backward"/></a>\
+                </li>\
+                <li>\
+                    <div class="bbGrid-page-counter pull-left">Стр.</div>\
+                    <input class="bbGrid-page-input" value="<%=page%>" type="text">\
+                    <div class="bbGrid-page-counter pull-right"> из <%=cntpages%> </div>\
+                </li>\
+                <li<%if(page == cntpages){%> class="active"<%}%>>\
+                    <a class="right"><i class="icon-forward"/></a>\
+                </li>\
+                <li<%if(page == cntpages){%> class="active"<%}%>>\
+                    <a class="last"><i class="icon-step-forward"/></a>\
+                </li>\
+            </ul>\
+            </div>\
+            <% if(rowlist){%>\
+                <div class="bbGrid-pager-rowlist-label pull-left">Cтрок на странице:</div>\
+                <select class="bbGrid-pager-rowlist">\
+                    <% _.each(rowlist, function(val){%>\
+                        <option <% if(rows == val){%>selected="selected"<%}%>><%=val%></option>\
+                    <%})%>\
+                </select>\
+            <%}%>');
         var pagerHtml = pager({page: this.view.currPage, cntpages: this.view.cntPages, rows: this.view.rows, rowlist: (this.view.rowList) ? this.view.rowList : false });
         if(!this.view.rowList)
             this.$el.addClass('bbGrid-pager-container-norowslist');
@@ -478,7 +528,17 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
     },
     render: function(){
 //        var colNames = (this.view.colNames == undefined) ? _(this.view.collection.at(0).attributes).keys() : this.view.colNames;
-        var row = _.template('<tr><% if(isMultiselect){%><th style="width:15px"><input type="checkbox"></th><%} if(isContainSubgrid){%><th style="width:15px"/><%} _.each(values, function(value){%><th><%=value%><i /></th><%})%></tr>');
+        var row = _.template('<tr>\
+            <% if(isMultiselect){%>\
+                <th style="width:15px">\
+                    <input type="checkbox">\
+                </th>\
+            <%} if(isContainSubgrid){%>\
+                <th style="width:15px"/>\
+                <%} _.each(values, function(value){%>\
+                    <th><%=value%><i /></th>\
+                <%})%>\
+        </tr>');
         var cols = _.filter(this.view.colModel, function(col){ return !col.hidden; });
         var theadHtml = row({
             isMultiselect: this.view.multiselect,
