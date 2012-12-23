@@ -1,24 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset='utf-8'>
-        <meta http-equiv="X-UA-Compatible" content="chrome=1">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-        <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-        <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-        <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+        <!--<link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />-->
         <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-
         <link rel="stylesheet" type="text/css" href="stylesheets/bbGrid.css">
 
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>	
         <script type="text/javascript" src="https://raw.github.com/documentcloud/underscore/master/underscore-min.js"></script>
         <script type="text/javascript" src="https://raw.github.com/documentcloud/backbone/master/backbone-min.js"></script>
         <script type="text/javascript" src="https://raw.github.com/direct-fuel-injection/bbGrid/master/bbGrid.js"></script>
-
         <script type="text/javascript" src="javascripts/main.js"></script>
-
 
         <!--[if lt IE 9]>	
         <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,58 +18,84 @@
 
         <title>Bbgrid by direct-fuel-injection</title>
     </head>
-
     <body>
-        <header>
-            <div class="inner">
-                <h1>Bbgrid</h1>
-                <h2>Grid system on Backbone.js and Twitter Bootstrap, sure jQuery :)</h2>
-                <a href="https://github.com/direct-fuel-injection/bbGrid" class="button"><small>View project on</small>GitHub</a>
+        <div class="navbar navbar-fixed-top navbar-inverse">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="./index.html">bbGrid</a>
+                    <ul class="nav">
+                        <li class="active"><a href="#home">Home</a></li>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                    </ul>
+                </div class="container">
             </div>
-        </header>
-
-        <div id="content-wrapper">
-            <div class="inner clearfix">
-                <section id="main-content">
-                    <h1>bbGrid</h1>
-
-                    <p>That's an extendable grid system (jqGrid like) developed on Backbone.js, Twitter Bootstrap and jQuery frameworks.</p>
-
-                    <h2>Quick Start</h2>					
-                    <h3>Requirements</h3>
-
-                    <ul>
-                        <li>Backbone.js v0.9.2</li>
-                        <li>Twitter Bootstrap v2.2.1</li>
-                        <li>jQuery v1.8.3</li>
-                    </ul><h3>Usage</h3>
-
-                    <p>Include bbGrid.js and bbGrid.css into your project.
+        </div>
+        <div class="container" style="margin-top: 60px">
+            <div id="home" class="hero-unit">
+                <h1>bbGrid <small>by direct-fuel-injection</small></h1>
+                <p>is extendable grid based on backbone.js, jQuery and Twitter Bootstrap.</p>
+                <p>
+                    <a class="btn btn-primary btn-large" href="http://github.com/direct-fuel-injection/bbGrid">
+                        Fork me on Github
+                    </a>
+                    <a class="btn btn-success btn-large" href="http://github.com/direct-fuel-injection/bbGrid/archive/master.zip">
+                        Download
+                    </a>
+                </p>
+            </div>
+            <section>
+                <h2>What it is</h2>
+                <p>Quite simply, bbGrid is a JavaScript grid/spreadsheet component.<br>
+                    You can report bugs and discuss features on the 
+                    <a href="http://github.com/direct-fuel-injection/bbGrid/issues">GitHub issues page</a> 
+                    or send tweets to <a href="http://twitter.com/feat_dfi">@feat_dfi</a>. Not stable version, right now.
+                </p>
+                <p>Some highlights:</p>
+                 <ul>
+                     <li>Responsive due to Twitter Bootstrap</li>
+                     <li>Extendable thanks to Backbone.js</li>
+                     <li>Fast as much as jQuery can</li>
+                     <li>Configurable & customizable</li>
+                 </ul>
+            </section>
+            <section>
+                <h2>How to Start</h2>
+                <p>First of all you must to do is download dependecies. Here there's home pages:</p>                
+                <ul>
+                    <li><a href="http://backbonejs.org">Backbone.js</a></li>
+                    <li><a href="http://jquery.com">jQuery</a></li>
+                    <li><a href="http://twitter.github.com/bootstrap">Twitter Bootstrap</a></li>
+                </ul>
+                <p>Include bbGrid.js and bbGrid.css into your project.
                         It should look like this:</p>
-                    <pre>&lt;link rel="stylesheet" type="text/css" href="../bootstrap.css"&gt;
+                <h4>Example code:</h4>
+                    <pre class="prettyprint">&lt;link rel="stylesheet" type="text/css" href="../bootstrap.css"&gt;
 &lt;link rel="stylesheet" type="text/css" href="../bbGrid.css"&gt;
 	
 &lt;script type="text/javascript" src="../jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="../underscore-min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="../backbone-min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="../bbGrid.js"&gt;&lt;/script&gt;</pre>
-                    
-                    <h2>Documentation</h2>
-                    Simple grid javascript code:
-                    <pre>var MyGrid = new bbGrid.View({
-        caption: 'My first Grid',
-        container: $('#bbGrid-example'),        
-        rows: 25,
-        rowList: [25, 50, 100, 250, 500],
+                After all work is done. Go to the <a href="#docs">Basics</a> section.
+            </section>
+            <section id="docs">
+                <h2>Documentation</h2>
+                <p>Lets start with basics. First to make grid work create Backbone.Collection and then create new bbGrid object (implements Backbone.View).</p>
+                <div class="alert alert-error">
+                  Warning! Collection must contain models with unique id attribute. This is needed for correct sorting, click event handlers and other things.
+                </div>
+                <h4>Example code:</h4>
+                <pre>var MyGrid = new bbGrid.View({        
+        container: $('#bbGrid-container'),        
         collection: MyCollection,
-        autofetch: true,
         colModel: [{ title: 'ID', name: 'id', sorttype: 'number' },
                    { title: 'Full Name', name: 'name' },
                    { title: 'Company', name: 'company' },
                    { title: 'Email', name: 'email' } ]
     });</pre>
                     <h3>Options</h3>
-                    <table class="bbGrid-grid table table-bordered">
+                    <table class="table table-bordered">
                         <thead class="bbGrid-grid-head">
                             <tr>
                                 <td>Property</td>
@@ -96,11 +114,12 @@
                             <tr>
                                 <td>buttons</td>
                                 <td>array of objects</td>
-                                <td>Sets buttons bottom-left in navigation bar. this context in onClick function will be an alias to collection. When initialization of grid completed each button can access from myGrid.buttons (array of jQuery objects).<br>Example:<br>[{<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;'id': 'myBtnID',<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;'title': 'Add new row',<br> 
-                                    &nbsp;&nbsp;&nbsp;&nbsp;onClick: function(event){ /* any code here */ }<br>
-}]
+                                <td>Sets buttons bottom-left in navigation bar. this context in onClick function will be an alias to collection. When initialization of grid completed each button can access from myGrid.buttons (array of jQuery objects).<br>Example:<br>
+                                    <pre>buttons: [{
+    'id': 'myBtnID',
+    'title': 'Add new row',
+    onClick: function(event){ /* any code here */ }
+}]</pre>
                                 </td>
                                 <td>none</td>
                             </tr>
@@ -166,10 +185,11 @@
                             </tr>                            
                         </tbody>
                     </table>
-                    <h3>Methods</h3>
-                    Soon...
+<!--                    <h3>Methods</h3>
+                    Soon...-->
                     <h3>Events</h3>
-                    That example specifies the action to take when a grid complete. The events that you can use to perform some additional action are below in table:
+                    <p>That example specifies the action to take when a grid complete. The events that you can use to perform some additional action are below in table:</p>
+                    <h4>Example code:</h4>
                     <pre>new bbGrid.View({
 ...
    onReady: function(){       
@@ -177,8 +197,8 @@
    },
 ...
 });</pre>
-                    <table class="bbGrid-grid table table-bordered">
-                        <thead class="bbGrid-grid-head">
+                    <table class="table table-bordered">
+                        <thead>
                             <tr>
                                 <td>Event</td>
                                 <td>Parameters</td>
@@ -206,35 +226,22 @@
                                 <td>container,model.id</td>
                                 <td>This event is raised when the subgrid is enabled and is executed when the user clicks on the plus icon of the grid. Can be used to put custom data in the subgrid. Parameter container represents table td wrapped in jQuery object.</td>                                
                             </tr>
+                            <tr>
+                                <td>onRowCollapsed</td>
+                                <td>container,model.id</td>
+                                <td>Has the opposite effect of the above-described event, triggers when the user clicks on the minus icon of the grid. Subgrid row removes from DOM-tree.</td>                                
+                            </tr>
                         </tbody>
                     </table>
-                    <h2>Examples</h2>
-                    <h3>An example of simple grid with 10000 rows</h3>
-                    <div id="bbGrid-example"></div>
-                    <h3>An example of simple grid with subgrid</h3>
-                    <div id="bbGrid-example2"></div>
-                    <blockquote>
-                        <h2>Thanks for using it!</h2>
-                    </blockquote>
-                </section>
-
-                <aside id="sidebar">
-                    <a href="https://github.com/direct-fuel-injection/bbGrid/zipball/master" class="button">
-                        <small>Download</small>
-                        .zip file
-                    </a>
-                    <a href="https://github.com/direct-fuel-injection/bbGrid/tarball/master" class="button">
-                        <small>Download</small>
-                        .tar.gz file
-                    </a>
-
-                    <p class="repo-owner"><a href="https://github.com/direct-fuel-injection/bbGrid"></a> is maintained by <a href="https://github.com/direct-fuel-injection">direct-fuel-injection</a>.</p>
-
-                    <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
-                </aside>
-            </div>
+            </section>
+            <section id="examples">
+                <h2>Examples</h2>
+                <h3>Grid with 10000 rows</h3>
+                <div id="bbGrid-example"></div>
+                <h3>Sub-grid example</h3>
+                <div id="bbGrid-example2"></div>
+            </section>
         </div>
-
         <!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter18700834 = new Ya.Metrika({id:18700834, webvisor:true, clickmap:true, trackLinks:true, accurateTrackBounce:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/18700834" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
     </body>
 </html>
