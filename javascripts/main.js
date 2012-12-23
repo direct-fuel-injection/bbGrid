@@ -4,7 +4,7 @@ $(function(){
     var MyCollection = new Backbone.Collection;
     var MyGrid = new bbGrid.View({
         container: $('#bbGrid-example'),
-        width: 700,
+//        width: 700,
         rows: 25,
         rowList: [25,50, 100, 250, 500],
         collection: MyCollection,
@@ -12,7 +12,13 @@ $(function(){
                    { title: 'Full Name', index: true, name: 'name' },
                    { title: 'Company', index: true, name: 'company' },
                    { title: 'Email', index: true, name: 'email' }
-        ]
+        ]//,
+//        buttons: [{
+//                title: 'Click me',
+//                onClick: function(){
+//                    alert('click');
+//                }
+//        }]
     });
     var MyGrid2 = new bbGrid.View({
         container: $('#bbGrid-example2'),
