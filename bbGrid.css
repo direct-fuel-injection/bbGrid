@@ -9,8 +9,11 @@
 .bbGrid-grid td{ cursor: default; line-height: 12px }
 .bbGrid-grid .bbGrid-grid-head{font-size: 12px;background-color: #F5F5F5;cursor: pointer}
 .bbGrid-grid .bbGrid-grid-head i{ float: right}
+.bbGrid-grid .bbGrid-grid-head .bbGrid-filter-bar input,.bbGrid-grid .bbGrid-grid-head .bbGrid-filter-bar select{display: block;padding: 0; margin: 0px; font-size: 12px; width:100%; height: 22px}
+.bbGrid-grid .bbGrid-grid-head .bbGrid-filter-bar select{height: 24px;padding:2px 2px;}
 .bbGrid-grid .bbGrid-actions-cell { padding: 2px 5px; text-align: center}
 .bbGrid-grid .bbGrid-subgrid-control { padding: 2px 5px; text-align: center}
+.bbGrid-grid .bbGrid-multiselect-control input{margin: 0}
 .bbGrid-container {width: auto}
 .bbGrid-container .bbGrid-loading{ margin: 3px 0 2px 40%;width: 20% }
 .bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%}
@@ -36,3 +39,8 @@
 .bbGrid-grid tbody tr.error:hover td{background-color:#ebcccc;}
 .bbGrid-grid tbody tr.warning:hover td{background-color:#faf2cc;}
 .bbGrid-grid tbody tr.info:hover td{background-color:#c4e3f3;}
+.bbGrid-grid caption{font-size: 1.4em;font-weight: bold;line-height: 2em}
+.bbGrid-search-bar {padding: 2px}
+.bbGrid-search-bar input, .bbGrid-search-bar button{padding: 1px 6px;}
+.bbGrid-search-bar input{ font-size: 12px}
+.bbGrid-search-bar li > a{font-size: 12px; padding-top: 1px; padding-bottom: 1px}
