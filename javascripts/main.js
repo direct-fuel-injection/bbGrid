@@ -9,16 +9,21 @@ $(function(){
         rowList: [25,50, 100, 250, 500],
         collection: MyCollection,
         colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
-                   { title: 'Full Name', index: true, name: 'name' },
-                   { title: 'Company', index: true, name: 'company' },
+                   { title: 'Full Name', index: true, name: 'name', filter: true, filterType: 'input'},
+                   { title: 'Company', index: true, name: 'company', filter: true },
                    { title: 'Email', index: true, name: 'email' }
-        ]//,
-//        buttons: [{
-//                title: 'Click me',
-//                onClick: function(){
-//                    alert('click');
-//                }
-//        }]
+        ],
+        buttons: [{
+                title: 'Show selected',
+                onClick: function(){
+                    var models = MyGrid.getSelectedModels()
+                    if( models.length > 0 && models[0])
+                        alert(models[0].get('name'));
+                    else
+                        alert('Nothing');
+                    
+                }
+        }]
     });
     var MyGrid2 = new bbGrid.View({
         container: $('#bbGrid-example2'),
@@ -34,8 +39,7 @@ $(function(){
             var subgrid = new bbGrid.View({
                 container: $el,
                 rows: 10,
-//                rowList: [10,50,100, 250, 500],
-//                multiselect: true,
+                multiselect: true,
                 collection: subgridCollection,                    
                 colModel: [ { title: 'Full Name', index: true,  name: 'name' },
                    { title: 'Age', name: 'age',  index: true, sorttype: 'number' },
