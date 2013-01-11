@@ -23,7 +23,6 @@ bbGrid.View = function(options) {
     }
     
     this.collection.view = this;
-    
 
     var nonWrapped = _.bind(this.collection.fetch, this.collection);
     this.collection.fetch = (function() {
@@ -211,8 +210,10 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     onCheckAll: function(event){
         var checked = $(event.target).is(':checked');        
         for (key in this.rowViews){
-            if(this.rowViews[key].selected != checked)
-                this.rowViews[key].trigger('select');
+            if(this.rowViews[key].selected != checked){
+                if(!this.rowViews[key].model.get('cb_disabled'))
+                    this.rowViews[key].trigger('select');
+            }
         }
     },
     rowsHandler: function(model, collection, options){
@@ -227,6 +228,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     },
     renderPage: function(options){
         options = options || {silent: false};
+        this.selectedRows = [];
         if(this.rows && this.pager) this.pager.render();
         var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
@@ -259,7 +261,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         if(this.onRowDblClick)
             this.onRowDblClick(model);
     },
-    onPageChanged: function(event){        
+    onPageChanged: function(event){
         var $el = $(event.currentTarget)
         var className = $el.attr('class');
 
@@ -353,8 +355,9 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         options = options || {};
         var target = options.currentTarget || undefined,
             className = (target) ? target.className : undefined,
-            self = this;
-
+            self = this,
+            $control = $(target).closest('tr').find('td.bbGrid-multiselect-control input');
+        if($control && $control.is(':disabled') && className != 'bbGrid-subgrid-control') return false;
         if(!(this.view.multiselect && this.view.subgrid && className != 'bbGrid-subgrid-control')) {
             this.view.trigger("selected", this.model, this.$el, options);
         }        
@@ -395,9 +398,9 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
             this.view.onRowClick(this.model);
     },
     render: function(){
-        var self = this;
+        var self = this;        
         var row = _.template('<% if(isMultiselect){%>\
-            <td class="bbGrid-multiselect-control"><input type="checkbox" <% if(isChecked){%>checked="checked"<%}%>></td>\
+            <td class="bbGrid-multiselect-control"><input type="checkbox" <% if(isDisabled){ %>disabled="disabled"<% } %><% if(isChecked){%>checked="checked"<%}%>></td>\
             <%} if(isContainSubgrid){%>\
                 <td class="bbGrid-subgrid-control">\
                     <i class="icon-plus">\
@@ -407,12 +410,14 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
                         <%=row.value%>\
                     </td>\
                 <%})%>');
-        var cols = _.filter(this.view.colModel, function(col){return !col.hidden;});
+        var cols = _.filter(this.view.colModel, function(col){return !col.hidden;});        
         var isChecked = ($.inArray(this.model.id, this.view.selectedRows) >= 0);
+        var isDisabled = false || this.model.get('cb_disabled');
         var html = row( {
             isMultiselect: this.view.multiselect,
             isContainSubgrid: this.view.subgrid,
             isChecked: isChecked,
+            isDisabled: isDisabled,
             values: _.map(cols, function(col){
                 if(col.actions) {
                    col.name = 'bbGrid-actions-cell';
@@ -700,7 +705,9 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
         delete options[key];
         if(text.length > 0)
             collection.reset(_.filter(collection.models, function(model){
-                return model.get(key).indexOf(text) >= 0;
+                var option = model.get(key);
+                if(option) return option.indexOf(text) >= 0;
+                else return false;
             }),{silent: true});
         this.filter(collection, options);
     },
