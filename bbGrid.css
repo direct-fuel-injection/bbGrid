@@ -16,7 +16,7 @@
 .bbGrid-grid .bbGrid-multiselect-control input{margin: 0}
 .bbGrid-container {width: auto}
 .bbGrid-container .bbGrid-loading{ margin: 3px 0 2px 40%;width: 20% }
-.bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%}
+.bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%; line-height: 20px}
 .bbGrid-container .table{ margin: 0 }
 .bbGrid-container .bbGrid-pager-container{height: 26px; width: 380px; left: 50%; margin-left:-190px; position: absolute}
 .bbGrid-container .bbGrid-pager-container-norowslist{width: 200px; margin-left:-100px}
