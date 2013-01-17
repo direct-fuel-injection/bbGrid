@@ -9,6 +9,7 @@
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>	
         <script type="text/javascript" src="https://raw.github.com/documentcloud/underscore/master/underscore-min.js"></script>
         <script type="text/javascript" src="https://raw.github.com/documentcloud/backbone/master/backbone-min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="https://raw.github.com/direct-fuel-injection/bbGrid/master/bbGrid.js"></script>
         <script type="text/javascript" src="javascripts/main.js"></script>
 
@@ -26,9 +27,31 @@
                     <ul class="nav">
                         <li class="active"><a href="#home">Home</a></li>
                         <li><a href="#docs">Documentation</a></li>
-                        <li><a href="#examples">Examples</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                Examples
+                                <i class="caret"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="#cleargrid">Clear grid</a>
+                                </li>
+                                <li>
+                                    <a href="#buttons">Buttons</a>
+                                </li>
+                                <li>
+                                    <a href="#search">Search</a>
+                                </li>
+                                <li>
+                                    <a href="#filters">Filters</a>
+                                </li>
+                                <li>
+                                    <a href="#subgrid">Sub-grid</a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
-                </div class="container">
+                </div>
             </div>
         </div>
         <div class="container" style="margin-top: 60px">
@@ -148,6 +171,12 @@
                                 <td>none</td>
                             </tr>
                             <tr>
+                                <td>enableSearch</td>
+                                <td>boolean</td>
+                                <td>If this flag is set to true search bar will be displayed.</td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
                                 <td>multiselect</td>
                                 <td>boolean</td>
                                 <td>If this flag is set to true a multi selection of rows is enabled. A new column at left side containing checkboxes is added.</td>
@@ -207,6 +236,11 @@
                         </thead>
                         <tbody>
                             <tr>
+                                <td>onBeforeRender</td>
+                                <td>none</td>
+                                <td>This fires before thead and rows will be rendered.</td>
+                            </tr>
+                            <tr>
                                 <td>onReady</td>
                                 <td>none</td>
                                 <td>This fires after all the data is loaded into the grid and all other processes are complete.</td>                                
@@ -236,10 +270,67 @@
             </section>
             <section id="examples">
                 <h2>Examples</h2>
-                <h3>Grid with 10000 rows</h3>
-                <div id="bbGrid-example"></div>
-                <h3>Sub-grid example</h3>
-                <div id="bbGrid-example2"></div>
+                <h3 id="cleargrid">Clear grid</h3>
+                <h4>Example code:</h4>
+                    <pre>App.SearchExampleGrid = new bbGrid.View({    
+    enableSearch: true,
+    ...
+});</pre>
+                <div id="bbGrid-clear"></div>
+                <h3 id="buttons">Buttons</h3>
+                <h4>Example code:</h4>
+                    <pre>App.ButtonsExampleGrid = new bbGrid.View({
+    ...
+    buttons: [{
+            title: 'Show selected',
+            onClick: function(){
+                var models = this.view.getSelectedModels();
+                if( !_.isEmpty(models)) {
+                    alert(_.first(models).get('name'));
+                } else {
+                    alert('Nothing');
+                }
+            }
+    }]
+});</pre>
+                <div id="bbGrid-buttons"></div>
+                <h3 id="search">Search</h3>
+                <h4>Example code:</h4>
+                    <pre>App.FiltersExampleGrid = new bbGrid.View({
+    ...
+    colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
+               { title: 'Full Name', index: true, name: 'name', filter: true, filterType: 'input'},
+               { title: 'Company', index: true, name: 'company', filter: true },
+               { title: 'Email', index: true, name: 'email' }],
+    ...
+});</pre>
+                <div id="bbGrid-search"></div>
+                <h3 id="filters">Filters</h3>
+                <h4>Example code:</h4>
+                    <pre>App.FiltersExampleGrid = new bbGrid.View({
+    ...
+    colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
+               { title: 'Full Name', index: true, name: 'name', filter: true, filterType: 'input'},
+               { title: 'Company', index: true, name: 'company', filter: true },
+               { title: 'Email', index: true, name: 'email' }],
+    ...
+});</pre>
+                <div id="bbGrid-filters"></div>
+                <h3 id="subgrid">Sub-grid</h3>
+                <h4>Example code:</h4>
+                    <pre>App.SubgridExapmleGrid = new bbGrid.View({
+    ...
+    subgrid: true,
+    subgridAccordion: true,    
+    onRowExpanded: function($el, rowid) {
+        var subgrid = new bbGrid.View({
+            container: $el,
+            collection: subgridCollection,
+            ...
+        });
+    }
+});</pre>
+                <div id="bbGrid-subgrid"></div>
             </section>
         </div>
         <!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter18700834 = new Ya.Metrika({id:18700834, webvisor:true, clickmap:true, trackLinks:true, accurateTrackBounce:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/18700834" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
