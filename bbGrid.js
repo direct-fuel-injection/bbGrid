@@ -229,17 +229,16 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     renderPage: function(options){
         options = options || {silent: false};
         this.selectedRows = [];
+        if(this.onBeforeRender) this.onBeforeRender();
+        this.thead.render();
         if(this.rows && this.pager) this.pager.render();
         var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
-
         this.toggleLoading(false);
         if(this.onReady && !this.autofetch)
             this.onReady();
-        if(this.filterBar)
-            if(!options.silent){
-                this.filterBar.render();
-            }
+        if(this.filterBar && !options.silent)
+            this.filterBar.render();
     },
     onSort: function(event){
         var $el = $(event.currentTarget);        
@@ -533,7 +532,7 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
         this.view.trigger('sort', event);
     },
     render: function(){
-//        var colNames = (this.view.colNames == undefined) ? _(this.view.collection.at(0).attributes).keys() : this.view.colNames;
+//        var colNames = (this.view.colNames == undefined) ? _(this.view.collection.at(0).attributes).keys() : this.view.colNames;        
         var row = _.template('<tr>\
             <% if(isMultiselect){%>\
                 <th style="width:15px">\
@@ -545,7 +544,7 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
                     <th><%=value%><i /></th>\
                 <%})%>\
         </tr>');
-        var cols = _.filter(this.view.colModel, function(col){return !col.hidden;});
+        var cols = _.filter(this.view.colModel, function(col){return !col.hidden;});        
         var theadHtml = row({
             isMultiselect: this.view.multiselect,
             isContainSubgrid: this.view.subgrid,
