@@ -300,14 +300,11 @@
                 <div id="bbGrid-buttons"></div>
                 <h3 id="search">Search</h3>
                 <h4>Example code:</h4>
-                    <pre>App.FiltersExampleGrid = new bbGrid.View({
+                    <pre>App.SearchExampleGrid = new bbGrid.View({        
     ...
-    colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
-               { title: 'Full Name', index: true, name: 'name', filter: true, filterType: 'input'},
-               { title: 'Company', index: true, name: 'company', filter: true },
-               { title: 'Email', index: true, name: 'email' }],
+    enableSearch: true,
     ...
-});</pre>
+}); </pre>
                 <div id="bbGrid-search"></div>
                 <h3 id="filters">Filters</h3>
                 <h4>Example code:</h4>
