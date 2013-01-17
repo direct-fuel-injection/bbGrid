@@ -82,12 +82,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.$thead = this.thead.render();
             this.$grid.append(this.$thead);
 //            console.log('Columns created');
-        }
-        if(!this.$filterBar && this.enableFilter){
-            this.filterBar = new bbGrid.FilterView({view: this});
-            this.$filterBar = this.filterBar.render();
-            this.$thead.append(this.$filterBar);
-        }
+        }        
         if(!this.$navBar){
             this.navBar = new bbGrid.NavView({view: this});
             this.$navBar = this.navBar.render();
@@ -230,7 +225,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         options = options || {silent: false};
         this.selectedRows = [];
         if(this.onBeforeRender) this.onBeforeRender();
-        this.thead.render();
+        if(!options.silent)
+            this.thead.render();
         if(this.rows && this.pager) this.pager.render();
         var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
@@ -551,6 +547,11 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
             values: _.map(cols, function(col){return (col.title) ? col.title : col.name;})
         });
         this.$el.html(theadHtml);
+        if(this.view.enableFilter){            
+            this.view.filterBar = new bbGrid.FilterView({view: this.view});
+            this.view.$filterBar = this.view.filterBar.render();
+            this.$el.append(this.view.$filterBar);
+        }
         
         return this.$el;
     }
