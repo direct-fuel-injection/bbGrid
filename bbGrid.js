@@ -528,9 +528,11 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
         this.view.trigger('sort', event);
     },
     render: function(){
-//        var colNames = (this.view.colNames == undefined) ? _(this.view.collection.at(0).attributes).keys() : this.view.colNames;        
-        var row = _.template('<tr>\
-            <% if(isMultiselect){%>\
+        if(!this.$headHolder){
+            this.$headHolder = $('<tr class="bbGrid-grid-head-holder"/>');
+            this.$el.append(this.$headHolder);
+        }
+        var row = _.template('<% if(isMultiselect){%>\
                 <th style="width:15px">\
                     <input type="checkbox">\
                 </th>\
@@ -538,17 +540,17 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
                 <th style="width:15px"/>\
                 <%} _.each(values, function(value){%>\
                     <th><%=value%><i /></th>\
-                <%})%>\
-        </tr>');
+                <%})%>');
         var cols = _.filter(this.view.colModel, function(col){return !col.hidden;});        
         var theadHtml = row({
             isMultiselect: this.view.multiselect,
             isContainSubgrid: this.view.subgrid,
             values: _.map(cols, function(col){return (col.title) ? col.title : col.name;})
         });
-        this.$el.html(theadHtml);
-        if(this.view.enableFilter){            
+        this.$headHolder.html(theadHtml);
+        if(!this.view.$filterBar && this.view.enableFilter){
             this.view.filterBar = new bbGrid.FilterView({view: this.view});
+            console.log('filter render');
             this.view.$filterBar = this.view.filterBar.render();
             this.$el.append(this.view.$filterBar);
         }
