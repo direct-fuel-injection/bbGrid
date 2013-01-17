@@ -272,9 +272,13 @@
                 <h2>Examples</h2>
                 <h3 id="cleargrid">Clear grid</h3>
                 <h4>Example code:</h4>
-                    <pre>App.SearchExampleGrid = new bbGrid.View({    
-    enableSearch: true,
-    ...
+                    <pre>App.ClearExampleGrid = new bbGrid.View({
+    container: $('#bbGrid-clear'),
+    collection: App.clearGridCollection,
+    colModel: [{ title: 'ID', name: 'id' },
+               { title: 'Full Name', name: 'name'},
+               { title: 'Company', name: 'company'},
+               { title: 'Email', name: 'email' }]
 });</pre>
                 <div id="bbGrid-clear"></div>
                 <h3 id="buttons">Buttons</h3>
