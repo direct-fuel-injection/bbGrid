@@ -28,7 +28,7 @@
 .bbGrid-container .bbGrid-pager a{ margin: 0 1px; padding: 4px; border: 1px solid #CCCCCC}
 .bbGrid-container .bbGrid-pager li.active a{ background-color:#F5F5F5}
 .bbGrid-container .bbGrid-page-counter {font-size: 11px; padding: 2px 0px 0px 4px}
-.bbGrid-container .bbGrid-grid-nav .bbGrid-page-input{padding: 1px; margin: 0 0 0 1px; width: 30px; font-size: 11px;text-align: center }
+.bbGrid-container .bbGrid-grid-nav .bbGrid-page-input{float: left; padding: 1px; margin: 0 0 0 1px; width: 30px; font-size: 11px;text-align: center }
 .bbGrid-navBar-buttonsContainer {margin: 2px 0 0}
 .bbGrid-navBar-buttonsContainer button{margin-right: 1px}
 .bbGrid-container .bbGrid-grid-nav .bbGrid-pager-rowlist {width: 56px; margin-top: 2px; margin-left:2px; padding: 3px 2px; height: 24px; font-size: 11px}
