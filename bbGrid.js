@@ -233,8 +233,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     },
     renderPage: function(options){
         options = options || {silent: false};
-        var self = this,
-            interval = options.interval || this.getIntervalByPage(this.currPage);
+        var self = this;
         if(this.loadDynamic && !this.autofetch && !options.silent){
             this.collection.fetch({
                 data: { page: self.currPage, rows: this.rows},
@@ -256,6 +255,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         if(!options.silent)
             this.thead.render();
         if(this.rows && this.pager) this.pager.render();
+        var interval = options.interval || this.getIntervalByPage(this.currPage);
+        
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
         this.toggleLoading(false);
         if(this.onReady && !this.autofetch)
@@ -321,7 +322,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             if(this.currPage >= this.cntPages)
                 $('div.bbGrid-pager a.right,.last', this.$el).parent().addClass('active');
             
-            this.renderPage();
+            this.renderPage({silent: !this.loadDynamic});
         }
     },
     resetSelection: function(model){
