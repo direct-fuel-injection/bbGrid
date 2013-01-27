@@ -1,13 +1,11 @@
-/*
- * Backbone.js + Bootstrap GridЋ  by dfi; 21.11.2012
- *
- */
+//     bbGrid.js 0.5.1
+
+//     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
+//     bbGrid may be freely distributed under the MIT license.
+//     For all details and documentation:
+//     http://direct-fuel-injection.github.com/bbGrid/
 
 var bbGrid = {};
-
-/* Main Container - top bar, table($grid), nav bar
- * Models of Collections must have [id] !
- * */
 
 bbGrid.View = function(options) {
     _.extend(this, options);
@@ -17,6 +15,7 @@ bbGrid.View = function(options) {
     var self = this;
     this.rowViews = {};
     this.selectedRows = [];
+    this.currPage = 1;
     
     if(!this.collection){
         throw('bbGrid: collection param is undefined');
@@ -27,18 +26,32 @@ bbGrid.View = function(options) {
     var nonWrapped = _.bind(this.collection.fetch, this.collection);
     this.collection.fetch = (function() {
         return function(options) {
-            self.trigger('fetch');
+            if(!options.silent)
+                self.trigger('fetch');
             return nonWrapped(options);
         };
     })();
 
     this.enableFilter = _.compact(_.pluck(this.colModel, 'filter')).length > 0;
+    this.autofetch = !this.loadDynamic && this.autofetch;
     this.render();
-
     if(this.autofetch){
         this.toggleLoading(true);
-        this.collection.fetch({silent: true, success: function(){self.renderPage();}});
+        this.collection.fetch({ silent: true,    
+            success: function(){
+                self.renderPage({ silent: true });
+            }
+        });
         this.autofetch = false;
+    }
+    
+    if(this.loadDynamic){        
+        _.extend(this.collection.model.prototype, {
+            parse: function(responce){                
+                this.collection.update(responce.rows, { silent: true });
+                this.collection.view.cntPages = responce.total;
+            }
+        });
     }
     
     this.on('selected', (this.subgrid) ? this.toggleSubgridRow : this.resetSelection);
@@ -47,7 +60,7 @@ bbGrid.View = function(options) {
     this.on('checkall', this.onCheckAll);
     this.on('rowDblClick', this.onDblClick);
     this.on('fetch', this.toggleLoading, this);
-    this.on('filter', function(){this.renderPage({silent: true})}, this);
+    this.on('filter', function(){ this.renderPage({silent: true}) }, this);
     this.collection.on("all", this.collectionEventHandler, this);
 };
 
@@ -67,21 +80,18 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }        
     },
     render: function(){
-//        console.log('Render', this);
-        if(this.width) this.$el.css('width', this.width+'px');
+        if(this.width) this.$el.css('width', this.width);
         
         if(!this.$grid){
             this.$grid = $('<table class="bbGrid-grid table table-bordered table-condensed" />');
             if(this.caption)
                 this.$grid.append('<caption>'+this.caption+'</caption>');
             this.$grid.appendTo(this.el);
-//            console.log('Table created');
         }
         if(!this.$thead){
             this.thead = new bbGrid.TheadView({view: this});
             this.$thead = this.thead.render();
             this.$grid.append(this.$thead);
-//            console.log('Columns created');
         }        
         if(!this.$navBar){
             this.navBar = new bbGrid.NavView({view: this});
@@ -135,7 +145,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             interval.s = (page - 1) * this.rows;
             interval.e = page * this.rows;
             if( interval.e > this.collection.length)
-                interval.e = this.collection.length;
+                interval.e = this.collection.length || this.rows;
         }
         else
             interval = {s:0, e:this.collection.length};
@@ -144,7 +154,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     clearGrid: function(){
         for(key in this.rowViews) this.rowViews[key].remove();
         this.rowViews = {};
-        $('tbody', this.$el).html('');
+        $('tbody', this.$el).empty();
     },
     toggleLoading: function(isToToggle){
         if(isToToggle == undefined) isToToggle = true;
@@ -203,7 +213,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.onRowExpanded($('td',View.$subgridContainer)[1], model.id);
     },
     onCheckAll: function(event){
-        var checked = $(event.target).is(':checked');        
+        var checked = $(event.target).is(':checked');
         for (key in this.rowViews){
             if(this.rowViews[key].selected != checked){
                 if(!this.rowViews[key].model.get('cb_disabled'))
@@ -223,12 +233,29 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     },
     renderPage: function(options){
         options = options || {silent: false};
+        var self = this,
+            interval = options.interval || this.getIntervalByPage(this.currPage);
+        if(this.loadDynamic && !this.autofetch && !options.silent){
+            this.collection.fetch({
+                data: { page: self.currPage, rows: this.rows},
+                wait: true, silent: true,
+                success: function(){                    
+                    self.collection.remove(
+                        self.collection.at(self.collection.length - 1),  
+                        { silent: true }
+                    );
+                    self.renderPage({ silent: true, interval: {s: 0, e: self.rows} });
+                }
+            });
+            return false;
+        }
+        
         this.selectedRows = [];
+        
         if(this.onBeforeRender) this.onBeforeRender();
         if(!options.silent)
             this.thead.render();
         if(this.rows && this.pager) this.pager.render();
-        var interval = this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
         this.toggleLoading(false);
         if(this.onReady && !this.autofetch)
@@ -284,8 +311,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             return false;
         
         if(this.currPage != page){
-            this.currPage = page;
-
+            this.currPage = page;            
+                
             $('div.bbGrid-pager li', this.$el).removeClass('active');
             $('.bbGrid-page-input', this.$pager).val(this.currPage);
 
@@ -458,12 +485,10 @@ _.extend(bbGrid.PagerView.prototype, Backbone.View.prototype, {
         this.view.trigger('pageChanged', event);
     },
     initPager: function() {
-        this.view.cntPages = Math.ceil(this.view.collection.length / this.view.rows);
-        if(this.view.currPage){
-            if(this.view.currPage > this.view.cntPages)
-                this.view.currPage = this.view.cntPages;
-        }
-        else this.view.currPage = 1;
+        if(!this.view.loadDynamic)
+            this.view.cntPages = Math.ceil(this.view.collection.length / this.view.rows);
+        if(this.view.currPage > 1 && this.view.currPage > this.view.cntPages)
+            this.view.currPage = this.view.cntPages;
        
         var pager = _.template('<div class="span bbGrid-pager">\
             <ul class="nav nav-pills">\
@@ -550,7 +575,6 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
         this.$headHolder.html(theadHtml);
         if(!this.view.$filterBar && this.view.enableFilter){
             this.view.filterBar = new bbGrid.FilterView({view: this.view});
-            console.log('filter render');
             this.view.$filterBar = this.view.filterBar.render();
             this.$el.append(this.view.$filterBar);
         }
