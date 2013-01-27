@@ -1,9 +1,9 @@
-/*!
- * bbGrid
- *
- * Copyright (c) 2012 dfi
- * Licensed under the MIT License 
- * 
+/*!  bbGrid.css 0.5.1
+*
+*     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
+*     bbGrid may be freely distributed under the MIT license.
+*     For all details and documentation:
+*     http://direct-fuel-injection.github.com/bbGrid/
  */
 .bbGrid-grid { font-size: 11px }
 .bbGrid-grid td{ cursor: default; line-height: 12px }
