@@ -733,7 +733,7 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
         if(text.length > 0)
             collection.reset(_.filter(collection.models, function(model){
                 var option = model.get(key);
-                if(option) return option.indexOf(text) >= 0;
+                if(option) return ("" + option).toLowerCase().indexOf(text.toLowerCase()) >= 0;
                 else return false;
             }),{silent: true});
         this.filter(collection, options);
