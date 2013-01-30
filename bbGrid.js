@@ -389,7 +389,7 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         
         if(this.view.multiselect || this.view.subgrid) {
             this.selected = (this.selected) ? false : true;
-            $('input[type=checkbox]', this.$el).attr('checked', this.selected);
+            $('input[type=checkbox]', this.$el).prop('checked', this.selected);
             this.selected = options.isShown || this.selected;
             if(!this.selected && !options.isShown) {
                 this.$el.removeClass('warning');
