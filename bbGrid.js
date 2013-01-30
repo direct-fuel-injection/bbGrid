@@ -26,6 +26,7 @@ bbGrid.View = function(options) {
     var nonWrapped = _.bind(this.collection.fetch, this.collection);
     this.collection.fetch = (function() {
         return function(options) {
+            options || (options = {});
             if(!options.silent)
                 self.trigger('fetch');
             return nonWrapped(options);
@@ -46,11 +47,11 @@ bbGrid.View = function(options) {
     }
     
     if(this.loadDynamic){        
-        _.extend(this.collection.model.prototype, {
-            parse: function(responce){                
-                this.collection.update(responce.rows, { silent: true });
-                this.collection.view.cntPages = responce.total;
-            }
+        _.extend(this.collection.prototype, {
+              parse: function(response) {
+                this.view.cntPages = response.total;
+                return response.rows;
+              }
         });
     }
     
@@ -238,11 +239,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.collection.fetch({
                 data: { page: self.currPage, rows: this.rows},
                 wait: true, silent: true,
-                success: function(){                    
-                    self.collection.remove(
-                        self.collection.at(self.collection.length - 1),  
-                        { silent: true }
-                    );
+                success: function(){
                     self.renderPage({ silent: true, interval: {s: 0, e: self.rows} });
                 }
             });
@@ -421,12 +418,12 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
             this.view.onRowClick(this.model);
     },
     render: function(){
-        var self = this;        
+        var self = this;
         var row = _.template('<% if(isMultiselect){%>\
             <td class="bbGrid-multiselect-control"><input type="checkbox" <% if(isDisabled){ %>disabled="disabled"<% } %><% if(isChecked){%>checked="checked"<%}%>></td>\
             <%} if(isContainSubgrid){%>\
                 <td class="bbGrid-subgrid-control">\
-                    <i class="icon-plus">\
+                    <i class="icon-plus<%if(isSelected){%> icon-minus<%}%>">\
                 </td>\
                 <%} _.each(values, function(row){%>\
                     <td <% if(row.name == "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>>\
@@ -439,6 +436,7 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         var html = row( {
             isMultiselect: this.view.multiselect,
             isContainSubgrid: this.view.subgrid,
+            isSelected: false || this.selected,
             isChecked: isChecked,
             isDisabled: isDisabled,
             values: _.map(cols, function(col){
