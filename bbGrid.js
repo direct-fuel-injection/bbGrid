@@ -120,7 +120,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         return model.get(this.sortName);
     },
     stringComparator: function(model){
-        return model.get(this.sortName).toLowerCase();
+        return ("" + model.get(this.sortName)).toLowerCase();
     },
     rsortBy: function(col){        
         var isSort = (this.sortName && this.sortName == col.name) ? false: true;
