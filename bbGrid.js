@@ -715,7 +715,7 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
             collection = new Backbone.Collection(this.view._collection.models);
         this.view.setCollection(collection);
         _.each($('*[name=filter]', this.$el), function(el){
-            var text = $(el).val().trim();            
+            var text = $.trim($(el).val());
             options[el.className] = text;
         });
         if(_.keys(options).length) self.filter(collection, options);
