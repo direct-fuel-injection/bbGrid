@@ -764,16 +764,8 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
         var options = {}, text, self = this,
             collection = new Backbone.Collection(this.view._collection.models);
         this.view.setCollection(collection);
-<<<<<<< HEAD
         _.each($('*[name=filter]', this.$el), function (el) {
             text = $.trim($(el).val());
-=======
-        _.each($('*[name=filter]', this.$el), function(el){
-            var text = $.trim($(el).val());
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
->>>>>>> 37f1513d956eeda03ecf544874ab1ff411a1ccfb
             options[el.className] = text;
         });
         if (_.keys(options).length) {
