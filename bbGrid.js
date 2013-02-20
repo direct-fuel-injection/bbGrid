@@ -206,7 +206,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         _.each(collection, function (model) {
             self.renderRow(model);
         });
-        if (collection.length === 0 && !this.autofetch) {            
+        if (collection.length === 0 && !this.autofetch) {
             this.$grid.append('<tbody><tr class="bbGrid-noRows"><td colspan="' + this.colLength + '">Нет записей</td></tr></tbody>');
         }
     },
@@ -221,13 +221,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }
         if (View.$subgridContainer) {
             $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('icon-minus');
-
-            if (options.isShown) {
-                View.$subgridContainer.empty();
-            } else {
-                View.$subgridContainer.remove();
-                delete View.$subgridContainer;
-            }
+            View.$subgridContainer.remove();
+            delete View.$subgridContainer;
             if (View.expandedRowId === model.id && !options.isShown) {
                 if (this.onRowCollapsed) {
                     this.onRowCollapsed($('td', View.$subgridContainer)[1], model.id);
@@ -436,8 +431,8 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         this.$el.addClass('warning');
         if (this.view.multiselect || this.view.subgrid) {
             this.selected = this.selected ? false : true;
-            $('input[type=checkbox]', this.$el).prop('checked', this.selected);
             this.selected = options.isShown || this.selected;
+            $('input[type=checkbox]', this.$el).prop('checked', this.selected);
             if (!this.selected && !options.isShown) {
                 this.$el.removeClass('warning');
             }
@@ -448,10 +443,6 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
             if (this.view.multiselect || (this.view.subgrid && !this.view.subgridAccordion)) {
                 this.view.selectedRows.push(this.model.id);
             } else {
-                if (this.view.selectedRows.length > 0 &&
-                        this.view.rowViews.hasOwnProperty(this.view.selectedRows[0])) {
-                    this.view.rowViews[this.view.selectedRows[0]].selected = false;
-                }
                 this.view.selectedRows = [this.model.id];
             }
         } else {
@@ -461,7 +452,7 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
                 });
         }
         if (this.view.onRowClick) {
-            this.view.onRowClick(this.model);
+            this.view.onRowClick(this.model, options);
         }
     },
     render: function () {
