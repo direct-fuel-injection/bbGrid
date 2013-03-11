@@ -38,15 +38,6 @@ $(function(){
     
     App.exampleCollection.fetch({ wait: true, 
         success:function(collection) {
-            
-            App.companies.add(_.map(_.uniq(collection.pluck('company')), function(val, index){
-                return {
-                    'id': index, 
-                    'company': val
-                };
-            }));
-            App.clearGridCollection.add(collection.models.slice(0, 10));
-            
             App.ClearExampleGrid = new bbGrid.View({
                 container: $('#bbGrid-clear'),
                 collection: App.clearGridCollection,
@@ -74,6 +65,7 @@ $(function(){
                         }
                 }]
             });
+            App.clearGridCollection.reset(collection.models.slice(0, 10));
             
             App.SubgridExapmleGrid = new bbGrid.View({
                 container: $('#bbGrid-subgrid'),
@@ -84,7 +76,7 @@ $(function(){
                 subgridAccordion: true,
                 colModel: [ { title: 'Company',  index: true, name: 'company' } ],
                 onRowExpanded: function($el, rowid) {
-                    var subgridCollection = new Backbone.Collection(collection.where({'company' : App.companies.at(rowid).get('company')}));
+                    var subgridCollection = new Backbone.Collection();
                     var subgrid = new bbGrid.View({
                         container: $el,
                         rows: 10,
@@ -96,8 +88,15 @@ $(function(){
                            { title: 'Email',  index: true, name: 'email' }
                         ]
                     });
+                    subgridCollection.reset(collection.where({'company' : App.companies.at(rowid).get('company')}));
                 }
             });
+            App.companies.reset(_.map(_.uniq(collection.pluck('company')), function(val, index){
+                return {
+                    'id': index, 
+                    'company': val
+                };
+            }));
         }
     });
     
