@@ -6,10 +6,29 @@
 //     http://direct-fuel-injection.github.com/bbGrid/
 var bbGrid = {};
 
+bbGrid.Dict = {'en': {
+        loading: 'Loading...',
+        noData: 'No rows',
+        search: 'Search',
+        rowsOnPage: 'Rows on page',
+        page: 'Pg',
+        all: 'All',
+        prep: 'of'
+    }, 'ru': {
+        loading: 'Загрузка',
+        noData: 'Нет записей',
+        search: 'Поиск',
+        rowsOnPage: 'Cтрок на странице',
+        all: 'Все',
+        page: 'Стр',
+        prep: 'из'
+    }
+};
+
 bbGrid.View = function (options) {
     _.extend(this, options);
     Backbone.View.apply(this, [options]);
-
+    this.setDict(options.lang);
     _.bindAll(this, 'numberComparator', 'stringComparator');
     this.on('all', this.EventHandler, this);
     this.rowViews = {};
@@ -38,8 +57,15 @@ bbGrid.View = function (options) {
 };
 
 _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
+    lang: 'en',
     tagName: 'div',
     className: 'bbGrid-container container',
+    setDict: function (lang) {
+        if(bbGrid.Dict.hasOwnProperty(lang)) {
+            this.lang = lang;
+        }
+        this.dict = bbGrid.Dict[this.lang];
+    },
     EventHandler: function (eventName, option1, option2, options) {
         switch (eventName) {
         case 'selected':
@@ -115,7 +141,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             this.navBar = new bbGrid.NavView({view: this});
             this.$navBar = this.navBar.render();
             this.$grid.after(this.$navBar);
-            this.$loading = $('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">Загрузка...</div></div>');
+            this.$loading = $('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">' + this.dict.loading + '</div></div>');
             this.$navBar.prepend(this.$loading);
         }
         if (!this.$searchBar && this.enableSearch) {
@@ -207,7 +233,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             self.renderRow(model);
         });
         if (collection.length === 0 && !this.autofetch) {
-            this.$grid.append('<tbody><tr class="bbGrid-noRows"><td colspan="' + this.colLength + '">Нет записей</td></tr></tbody>');
+            this.$grid.append('<tbody><tr class="bbGrid-noRows"><td colspan="' + this.colLength + '">' + this.dict.noData + '</td></tr></tbody>');
         }
     },
     setRowSelected: function (options) {
@@ -536,9 +562,9 @@ _.extend(bbGrid.PagerView.prototype, Backbone.View.prototype, {
                     <a class="left"><i class="icon-backward"/></a>\
                 </li>\
                 <li>\
-                    <div class="bbGrid-page-counter pull-left">Стр.</div>\
+                    <div class="bbGrid-page-counter pull-left">' + this.view.dict.page + '.</div>\
                     <input class="bbGrid-page-input" value="<%=page%>" type="text">\
-                    <div class="bbGrid-page-counter-right pull-right"> из <%=cntpages%> </div>\
+                    <div class="bbGrid-page-counter-right pull-right"> ' + this.view.dict.prep + ' <%=cntpages%> </div>\
                 </li>\
                 <li<%if (page === cntpages) {%> class="active"<%}%>>\
                     <a class="right"><i class="icon-forward"/></a>\
@@ -549,7 +575,7 @@ _.extend(bbGrid.PagerView.prototype, Backbone.View.prototype, {
             </ul>\
             </div>\
             <% if (rowlist) {%>\
-                <div class="bbGrid-pager-rowlist-label pull-left">Cтрок на странице:</div>\
+                <div class="bbGrid-pager-rowlist-label pull-left">' + this.view.dict.rowsOnPage + ':</div>\
                 <select class="bbGrid-pager-rowlist">\
                     <% _.each(rowlist, function (val) {%>\
                         <option <% if (rows === val) {%>selected="selected"<%}%>><%=val%></option>\
@@ -709,7 +735,7 @@ _.extend(bbGrid.SearchView.prototype, Backbone.View.prototype, {
     render: function () {
         var searchBar = _.template(
                 '<div class="input-append">\
-                    <input name="search" class="span2" type="text" placeholder="Поиск">\
+                    <input name="search" class="span2" type="text" placeholder="' + this.view.dict.search + '">\
                     <div class="btn-group dropup">\
                         <button class="btn dropdown-toggle" data-toggle="dropdown">\
                         <span name="column"><%=cols[0].title%></span>\
@@ -803,7 +829,7 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
                         <<% if (col.filterType === "input") {%>input<%}else{%>select<%}%> class="<%if (col.filterColName) {%><%=col.filterColName%><%}else{%><%=col.name %><%}%>" \
                             name="filter" type="text">\
                     <% if (col.filterType !== "input") {%>\
-                    <option value="">Все</option>\
+                    <option value="">' + this.view.dict.all + '</option>\
                         <% _.each(options[col.name], function (option) {%>\
                             <option value="<%=option%>"><%=option%></option>\
                         <%})%>\
