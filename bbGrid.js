@@ -322,6 +322,9 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }
         interval = options.interval || this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
+        if (!this.autofetch && this.collection.length > 0) {
+            this.toggleLoading(false);
+        }
         if (this.onReady && !this.autofetch) {
             this.onReady();
         }
