@@ -3,7 +3,7 @@
 That's an extendable grid system (jqGrid like) developed on Backbone.js, Twitter Bootstrap and jQuery frameworks.
 
 #### Requirements
-- Backbone.js > 0.9.10
+- Backbone.js > 1.0.0
 - Twitter Bootstrap v2.2.1
 - jQuery v1.8.3
 
