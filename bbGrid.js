@@ -1,4 +1,4 @@
-//     bbGrid.js 0.6.4
+//     bbGrid.js 0.7.1
 
 //     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
 //     bbGrid may be freely distributed under the MIT license.
@@ -90,11 +90,16 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         case 'filter':
             this.renderPage({silent: true});
             break;
+        case 'refresh':
+            this.renderPage();
+            this.toggleLoading(false);
+            break;
         default:
             break;
         }
     },
     collectionEventHandler: function (eventName, model, collection, options) {
+        var self = this;
         switch (eventName) {
         case 'change':
             if (this.enableFilter) {
@@ -102,10 +107,21 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             }
             break;
         case 'request':
+            this.filterOptions = {};
+            _.each(this.colModel, function (col, index) {
+                self.colModel[index] = _.omit(col, 'sortOrder');
+            });
+            if (this.onBeforeCollectionRequest) {
+                this.onBeforeCollectionRequest();
+            }
             this.toggleLoading(true);
+            break;
+        case 'error':
+            this.toggleLoading(false);
             break;
         case 'sync':
             this.toggleLoading(false);
+            this.renderPage();
             break;
         case 'reset':
             this.toggleLoading(false);
@@ -164,6 +180,38 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     },
     stringComparator: function (model) {
         return ("" + model.get(this.sortName)).toLowerCase();
+    },
+    sortBy: function (sortAttributes) {
+        var attributes = sortAttributes;
+        if (attributes.length) {
+            this.collection.reset(this._sortBy(this.collection.models, attributes), { silent: true });
+        }
+    },
+    _sortBy: function (models, attributes) {
+        var attr, self = this, models, sortOrder;
+        if (attributes.length === 1) {
+            attr = attributes[0]['name'];
+            sortOrder = attributes[0]['sortOrder'];
+            models = _.sortBy(models, function (model) {
+                return model.get(attr);
+            });
+            if (sortOrder === 'desc') {
+                models.reverse();
+            }
+            return models;
+        } else {
+            attr = attributes[0];
+            attributes = _.last(attributes, attributes.length - 1);
+            models = _.chain(models).sortBy(function (model) {
+                return model.get(attr);
+            }).groupBy(function (model) {
+                return model.get(attr);
+            }).toArray().value();
+            _.each(models, function (modelSet, index) {
+                models[index] = self._sortBy(models[index], attributes, sortOrder);
+            });
+            return _.flatten(models);
+        }
     },
     rsortBy: function (col) {
         var isSort, sortType, boundComparator;
@@ -224,6 +272,9 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         if (!this.rows && !this.buttons && !isToToggle) {
             this.$navBar.hide();
         }
+        if (this.filterBar) {
+            $('.bbGrid-filter-bar', this.$el).find('input,select').prop('disabled', isToToggle);
+        }
         this.$loading.toggle(isToToggle);
     },
     showCollection: function (collection) {
@@ -237,6 +288,16 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }
     },
     setRowSelected: function (options) {
+        var event = {}, className;
+        options || (options = {});
+        if (options.id && _.has(this.rowViews, options.id)) {
+            if (this.multiselect) {
+                className = '.bbGrid-multiselect-control';
+            }
+            event.currentTarget = $('td' + className, this.rowViews[options.id].$el).first()[0];
+            event.isShown = options.isShown || false;
+            this.rowViews[options.id].setSelection(event);
+        }
     },
     toggleSubgridRow: function (model, $el, options) {
         var View, colspan, subgridRow, subgridContainerHtml;
@@ -244,6 +305,11 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         View = this.subgridAccordion ? this : this.rowViews[model.id];
         if (this.subgridAccordion) {
             $('tr', this.$el).removeClass('warning');
+            _.each(this.rowViews, function (row) {
+                if(row.model.id !== model.id) {
+                    row.selected = false;
+                }
+            });
         }
         if (View.$subgridContainer) {
             $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('icon-minus');
@@ -259,7 +325,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         $('td.bbGrid-subgrid-control i', $el).addClass('icon-minus');
         colspan = this.multiselect ? 2 : 1;
         subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=extra%>"/><td colspan="<%=colspan %>"></td></tr>');
-        subgridContainerHtml = subgridRow({ extra: colspan, colspan: this.colModel.length });
+        subgridContainerHtml = subgridRow({ extra: colspan, colspan: this.colLength - colspan });
         View.$subgridContainer = $(subgridContainerHtml);
         $el.after(View.$subgridContainer);
         View.expandedRowId = model.id;
@@ -268,8 +334,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }
     },
     onCheckAll: function (event) {
-        var checked;
-        checked = $(event.target).is(':checked');
+        var checked = $(event.target).is(':checked');
         _.each(this.rowViews, function (view) {
             if (view.selected !== checked) {
                 if (!view.model.get('cb_disabled')) {
@@ -279,7 +344,8 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         });
     },
     addModelsHandler: function (model, collection, options) {
-        if ((options && collection.length === options.index + 1) || _.isEmpty(options)) {
+        var index = this.collection.indexOf(model);
+        if ((index + 1) === this.collection.length) {
             this.renderPage();
         }
     },
@@ -333,20 +399,38 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }
     },
     onSort: function (event) {
-        var $el, col;
+        var $el, col, newSortAttr = true, self = this;
+        if (!this.multisort) {
+            $('thead th i', this.$el).removeClass();
+        }
         $el = $(event.currentTarget);
+        this.sortSequence || (this.sortSequence = []);
         col = _.find(this.colModel, function (col) { return col.title === $el.text(); });
         if (!col || (col && (col.name === 'bbGrid-actions-cell' || !col.index))) {
             return false;
         }
-        $('thead th i', this.$el).removeClass();
-        this.rsortBy(col);
-        if (this.sortOrder === 'asc') {
-            $('i', $el).addClass('icon-chevron-up');
+        col.sortOrder = (col.sortOrder === 'asc' ) ? 'desc' : 'asc';
+        if (this.multisort) {
+            this.sortSequence = _.map(this.sortSequence, function (attr) {
+                if (attr.name === col.name) {
+                    newSortAttr = false;
+                    attr.sortOrder = col.sortOrder;
+                }
+                return attr;
+            });
+            if (newSortAttr) {
+                this.sortSequence.splice(0, 0, {name: col.name, sortOrder: col.sortOrder});
+            }
+            this.sortBy(this.sortSequence);
         } else {
-            $('i', $el).addClass('icon-chevron-down');
+            _.each(this.colModel, function (column, index) {
+                if (column.name !== col.name) {
+                    delete self.colModel[index].sortOrder;
+                }
+            });
+            this.rsortBy(col);
         }
-        this.renderPage({silent: true});
+        this.renderPage();
     },
     onDblClick: function (model, $el) {
         if (this.onRowDblClick) {
@@ -509,7 +593,7 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
             values: _.map(cols, function (col) {
                 if (col.actions) {
                     col.name = 'bbGrid-actions-cell';
-                    col.value = col.actions(self.model.id, self.model.attributes);
+                    col.value = col.actions(self.model.id, self.model.attributes, self.view);
                 } else {
                     col.value = self.model.attributes[col.name];
                 }
@@ -635,7 +719,9 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
             <%} if (isContainSubgrid) {%>\
                 <th style="width:15px"/>\
                 <%} _.each(cols, function (col) {%>\
-                    <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i /></th>\
+                    <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
+                        if (col.sortOrder === "asc" ) {%>class="icon-chevron-up"<%} else \
+                            if (col.sortOrder === "desc" ) {%>class="icon-chevron-down"<% } %>/></th>\
             <%})%>'
         );
         cols = _.filter(this.view.colModel, function (col) {return !col.hidden; });
@@ -675,7 +761,7 @@ _.extend(bbGrid.NavView.prototype, Backbone.View.prototype, {
                     return undefined;
                 }
                 btn = _.template('<button <%if (id) {%>id="<%=id%>"<%}%> class="btn btn-mini" type="button"><%=title%></button>');
-                btnHtml = btn({id: button.id, title: button.title});
+                btnHtml = button.html || btn({id: button.id, title: button.title});
                 $button = $(btnHtml).appendTo(self.view.$buttonsContainer);
                 if (button.onClick) {
                     button.onClick = _.bind(button.onClick, self.view.collection);
@@ -779,17 +865,18 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
     className: 'bbGrid-filter-bar',
     initialize: function (options) {
         options.view._collection = options.view.collection;
+        options.view.filterOptions = {};
     },
     onFilter: function (event) {
-        var options = {}, text, self = this,
+        var text, self = this,
             collection = new Backbone.Collection(this.view._collection.models);
         this.view.setCollection(collection);
         _.each($('*[name=filter]', this.$el), function (el) {
             text = $.trim($(el).val());
-            options[el.className] = text;
+            self.view.filterOptions[el.className] = text;
         });
-        if (_.keys(options).length) {
-            self.filter(collection, options);
+        if (_.keys(this.view.filterOptions).length) {
+            self.filter(collection, _.clone(this.view.filterOptions));
         }
         this.view.trigger('filter');
     },
@@ -829,8 +916,10 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
             <%_.each(cols, function (col) {%>\
                 <td>\
                     <%if (col.filter) {%>\
-                        <<% if (col.filterType === "input") {%>input<%}else{%>select<%}%> class="<%if (col.filterColName) {%><%=col.filterColName%><%}else{%><%=col.name %><%}%>" \
-                            name="filter" type="text">\
+                        <<% if (col.filterType === "input") \
+                            {%>input<%}else{%>select<%\
+                            }%> class="<%if (col.filterColName) {%><%=col.filterColName%><%}else{%><%=col.name %><%}%>" \
+                            name="filter" type="text" value="<%=filterOptions[col.name]%>">\
                     <% if (col.filterType !== "input") {%>\
                     <option value="">' + this.view.dict.all + '</option>\
                         <% _.each(options[col.name], function (option) {%>\
@@ -843,6 +932,7 @@ _.extend(bbGrid.FilterView.prototype, Backbone.View.prototype, {
         filterBarHtml = filterBar({
             isMultiselect: this.view.multiselect,
             isContainSubgrid: this.view.subgrid,
+            filterOptions: this.view.filterOptions,
             cols: _.filter(this.view.colModel, function (col) {return !col.hidden; }),
             options: options
         });
