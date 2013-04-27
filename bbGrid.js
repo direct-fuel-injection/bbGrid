@@ -32,7 +32,7 @@ bbGrid.View = function (options) {
     _.bindAll(this, 'numberComparator', 'stringComparator');
     this.on('all', this.EventHandler, this);
     this.rowViews = {};
-    this.selectedRows = [];
+    this.selectedRows = this.selectedRows || [];
     this.currPage = 1;
     if (!this.collection) {
         throw ('bbGrid: collection is undefined');
@@ -376,7 +376,6 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
             });
             return false;
         }
-        this.selectedRows = [];
         if (this.onBeforeRender) {
             this.onBeforeRender();
         }
@@ -388,7 +387,7 @@ _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         }
         interval = options.interval || this.getIntervalByPage(this.currPage);
         this.showCollection(this.collection.models.slice(interval.s, interval.e));
-        if (!this.autofetch && this.collection.length > 0) {
+        if (!this.autofetch) {
             this.toggleLoading(false);
         }
         if (this.onReady && !this.autofetch) {
