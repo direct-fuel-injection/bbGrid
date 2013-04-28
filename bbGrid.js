@@ -59,7 +59,7 @@ bbGrid.View = function (options) {
 _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
     lang: 'en',
     tagName: 'div',
-    className: 'bbGrid-container container',
+    className: 'bbGrid-container',
     setDict: function (lang) {
         if(bbGrid.Dict.hasOwnProperty(lang)) {
             this.lang = lang;
