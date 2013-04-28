@@ -567,7 +567,7 @@ _.extend(bbGrid.RowView.prototype, Backbone.View.prototype, {
         if (this.view.onRowClick) {
             this.view.onRowClick(this.model, options);
         }
-		this.view.thead.resetAllcheckbox();
+        this.view.thead.resetAllcheckbox();
     },
     render: function () {
         var self = this, row, cols, isChecked, isDisabled, html;
@@ -742,9 +742,9 @@ _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
         return this.$el;
     },
     resetAllcheckbox: function () {
-    	var rows = $('.bbGrid-row input[type=checkbox]', this.view.$el).length,
-    		checkedRows = $('.bbGrid-row input[type=checkbox]:checked', this.view.$el).length;
-    	$('input[type=checkbox]', this.$el).prop('checked', checkedRows === rows);
+        var rows = $('.bbGrid-row input[type=checkbox]', this.view.$el).length,
+            checkedRows = $('.bbGrid-row input[type=checkbox]:checked', this.view.$el).length;
+        $('input[type=checkbox]', this.$el).prop('checked', checkedRows === rows);
     }
 });
 
