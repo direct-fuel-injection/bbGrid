@@ -5,11 +5,11 @@
 *     For all details and documentation:
 *     http://direct-fuel-injection.github.com/bbGrid/
  */
-.bbGrid-grid { table-layout: fixed; font-size: 11px }
-.bbGrid-grid td{ cursor: default; line-height: 1.3em; overflow: hidden;white-space:nowrap; }
-.bbGrid-grid tr{height:1em;}
-.bbGrid-grid .bbGrid-grid-head{font-size: 12px;background-color: #F5F5F5;cursor: pointer}
-.bbGrid-grid .bbGrid-grid-head th{overflow: hidden; white-space: normal;}
+.bbGrid-grid { table-layout: fixed; font-size: 11px}
+.bbGrid-grid td{ cursor: default; overflow: hidden; white-space:nowrap; line-height: 1; vertical-align: middle}
+.bbGrid-grid tr{height:2.4em;}
+.bbGrid-grid .bbGrid-grid-head{font-size: 12px; cursor: pointer}
+.bbGrid-grid .bbGrid-grid-head th, .bbGrid-grid .bbGrid-grid-head td{overflow: hidden; white-space: normal; background-color: #F5F5F5}
 .bbGrid-grid .bbGrid-grid-head i{ float: right}
 .bbGrid-grid .bbGrid-grid-head .bbGrid-filter-bar input,.bbGrid-grid .bbGrid-grid-head .bbGrid-filter-bar select{display: block;padding: 1px 6px;box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; margin: 0px; font-size: 12px; width:100%; height: 22px}
 .bbGrid-grid .bbGrid-grid-head .bbGrid-filter-bar select{height: 24px;padding:2px 2px;}
