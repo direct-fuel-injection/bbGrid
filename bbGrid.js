@@ -1,4 +1,4 @@
-//     bbGrid.js 0.8.1
+//     bbGrid.js 0.8.2
 
 //     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
 //     bbGrid may be freely distributed under the MIT license.
@@ -7,7 +7,7 @@
 (function () {
     var viewOptions,
         bbGrid = this.bbGrid = {
-            'VERSION': '0.8.1',
+            'VERSION': '0.8.2',
             'lang': 'en',
             'setDict': function (lang) {
                 if (bbGrid.Dict.hasOwnProperty(lang)) {
@@ -46,6 +46,7 @@
         options || (options = {});
         _.extend(this, _.pick(options, _.union(viewOptions, _.values(options.events))));
         Backbone.View.apply(this, [options]);
+        _.bindAll(this, 'numberComparator', 'stringComparator');
         this.setDict(bbGrid.lang);
         this.on('all', this.EventHandler, this);
         this.rowViews = {};
@@ -534,13 +535,12 @@
         modelRemoved: function (model) {
             var self = this,
                 view = this.view.subgridAccordion ? this.view : this.view.rowViews[model.id];
-            if (view.$subgridContainer) {
+            if (view && view.$subgridContainer) {
                 view.$subgridContainer.remove();
             }
-            this.view.selectedRows = _.reject(this.view.selectedRows,
-                function (rowId) {
-                    return rowId === self.model.id;
-                });
+            this.view.selectedRows = _.reject(this.view.selectedRows, function (rowId) {
+                return rowId === self.model.id;
+            });
             this.remove();
         },
         modelChanged: function () {
