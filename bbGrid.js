@@ -6,11 +6,11 @@
 //     http://direct-fuel-injection.github.com/bbGrid/
 (function () {
     var templateSettings = {
-			evaluate    : /<%([\s\S]+?)%>/g,
-			interpolate : /<%=([\s\S]+?)%>/g,
-			escape      : /<%-([\s\S]+?)%>/g
-		};
-	var viewOptions,
+	    evaluate: /<%([\s\S]+?)%>/g,
+	    interpolate: /<%=([\s\S]+?)%>/g,
+	    escape: /<%-([\s\S]+?)%>/g
+	},
+	viewOptions,
         bbGrid = this.bbGrid = {
             'VERSION': '0.8.2',
             'lang': 'en',
