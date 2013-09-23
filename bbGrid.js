@@ -45,7 +45,8 @@
     viewOptions = ['autofetch', 'buttons', 'colModel', 'container',
         'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows',
         'subgrid', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
-        'onBeforeRender', 'onRowExpanded', 'onRowCollapsed', 'events'];
+        'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded',
+        'onRowCollapsed', 'events'];
 
     bbGrid.View = function (options) {
         options || (options = {});
@@ -328,7 +329,7 @@
             if (this.subgridAccordion) {
                 $('tr', this.$el).removeClass('warning');
                 _.each(this.rowViews, function (row) {
-                    if(row.model.id !== model.id) {
+                    if (row.model.id !== model.id) {
                         row.selected = false;
                     }
                 });
@@ -428,7 +429,7 @@
             if (!col || (col && (col.name === 'bbGrid-actions-cell' || !col.index))) {
                 return false;
             }
-            col.sortOrder = (col.sortOrder === 'asc' ) ? 'desc' : 'asc';
+            col.sortOrder = (col.sortOrder === 'asc') ? 'desc' : 'asc';
             if (this.multisort) {
                 this.sortSequence = _.map(this.sortSequence, function (attr) {
                     if (attr.name === col.name) {
@@ -449,7 +450,8 @@
                 });
                 this.rsortBy(col);
             }
-            this.renderPage();
+            this.thead.render();
+            this.renderPage({silent: true});
         },
         onDblClick: function (model, $el) {
             if (this.onRowDblClick) {
@@ -613,7 +615,7 @@
                 values: _.map(cols, function (col) {
                     if (col.actions) {
                         col.name = 'bbGrid-actions-cell';
-                        col.value = col.actions(self.model.id, self.model.attributes, self.view);
+                        col.value = col.actions.call(self, self.model.id, self.model.attributes, self.view);
                     } else {
                         col.value = self.model.attributes[col.name];
                     }
@@ -694,12 +696,12 @@
             }
             this.view.cntPages = this.view.cntPages || 1;
             pagerHtml = this.template({
-                    dict: this.view.dict,
-                    page: this.view.currPage,
-                    cntpages: this.view.cntPages,
-                    rows: this.view.rows,
-                    rowlist: this.view.rowList || false
-                });
+                dict: this.view.dict,
+                page: this.view.currPage,
+                cntpages: this.view.cntPages,
+                rows: this.view.rows,
+                rowlist: this.view.rowList || false
+            });
             if (!this.view.rowList) {
                 this.$el.addClass('bbGrid-pager-container-norowslist');
             }
@@ -788,7 +790,7 @@
                     btnHtml = button.html || btn({id: button.id, title: button.title});
                     $button = $(btnHtml).appendTo(self.view.$buttonsContainer);
                     if (button.onClick) {
-                        button.onClick = _.bind(button.onClick, self.view.collection);
+                        button.onClick = _.bind(button.onClick, self.view);
                         $button.click(button.onClick);
                     }
                     return $button;
@@ -844,13 +846,13 @@
         onSearch: function (event) {
             var self = this,
                 $el = $(event.target),
-                text = $el.val(),
-                pattern = new RegExp(text, "gi");
+                text = $el.val().trim();
             this.view.collection = this.view._collection;
             if (text) {
                 this.view.setCollection(new this.view._collection.constructor(
                     this.view.collection.filter(function (data) {
-                        return pattern.test(data.get(self.view.colModel[self.searchOptionIndex].name));
+                        var value = data.get(self.view.colModel[self.searchOptionIndex].name);
+                        return ("" + value).toLowerCase().indexOf(text.toLowerCase()) >= 0;
                     })
                 ));
             }
