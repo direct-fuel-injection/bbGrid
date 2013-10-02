@@ -1,18 +1,13 @@
-//     bbGrid.js 0.8.2
+//     bbGrid.js 0.8.3
 
 //     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
 //     bbGrid may be freely distributed under the MIT license.
 //     For all details and documentation:
 //     http://direct-fuel-injection.github.com/bbGrid/
 (function () {
-    var templateSettings = {
-	    evaluate: /<%([\s\S]+?)%>/g,
-	    interpolate: /<%=([\s\S]+?)%>/g,
-	    escape: /<%-([\s\S]+?)%>/g
-	},
-	viewOptions,
+    var viewOptions,
         bbGrid = this.bbGrid = {
-            'VERSION': '0.8.2',
+            'VERSION': '0.8.3',
             'lang': 'en',
             'setDict': function (lang) {
                 if (bbGrid.Dict.hasOwnProperty(lang)) {
@@ -347,7 +342,7 @@
             }
             $('td.bbGrid-subgrid-control i', $el).addClass('icon-minus');
             colspan = this.multiselect ? 2 : 1;
-            subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=extra%>"/><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
+            subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=extra%>"/><td colspan="<%=colspan %>"></td></tr>');
             subgridContainerHtml = subgridRow({ extra: colspan, colspan: this.colLength - colspan });
             View.$subgridContainer = $(subgridContainerHtml);
             $el.after(View.$subgridContainer);
@@ -537,7 +532,7 @@
                 <td <% if (row.name === "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>>\
                     <%=row.value%>\
                 </td>\
-            <%})%>', null, templateSettings
+            <%})%>'
         ),
         modelRemoved: function (model) {
             var self = this,
@@ -676,7 +671,7 @@
                         <option <% if (rows === val) {%>selected="selected"<%}%>><%=val%></option>\
                     <%})%>\
                 </select>\
-            <%}%>', null, templateSettings
+            <%}%>'
         ),
         onRowsChanged: function (event) {
             this.view.rows = parseInt($(event.target).val(), 10);
@@ -736,7 +731,7 @@
                     <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
                         if (col.sortOrder === "asc" ) {%>class="icon-chevron-up"<%} else \
                             if (col.sortOrder === "desc" ) {%>class="icon-chevron-down"<% } %>/></th>\
-            <%})%>', null, templateSettings
+            <%})%>'
         ),
         onAllCheckbox: function (event) {
             this.view.trigger('checkall', event);
@@ -786,12 +781,11 @@
                     if (!button) {
                         return undefined;
                     }
-                    btn = _.template('<button <%if (id) {%>id="<%=id%>"<%}%> class="btn btn-mini" type="button"><%=title%></button>', null, templateSettings);
+                    btn = _.template('<button <%if (id) {%>id="<%=id%>"<%}%> class="btn btn-mini" type="button"><%=title%></button>');
                     btnHtml = button.html || btn({id: button.id, title: button.title});
                     $button = $(btnHtml).appendTo(self.view.$buttonsContainer);
                     if (button.onClick) {
-                        button.onClick = _.bind(button.onClick, self.view);
-                        $button.click(button.onClick);
+                        $button.click(_.bind(button.onClick, self.view));
                     }
                     return $button;
                 });
@@ -836,7 +830,7 @@
                         <%})%>\
                     </ul>\
                 </div>\
-            </div>', null, templateSettings
+            </div>'
         ),
         initialize: function (options) {
             _.bindAll(this, 'setSearchOption');
@@ -913,7 +907,7 @@
                     </select><%}%>\
                     <%}%>\
                 </td>\
-            <%})%>', null, templateSettings),
+            <%})%>'),
         initialize: function (options) {
             options.view._collection = options.view.collection;
             options.view.filterOptions = {};
