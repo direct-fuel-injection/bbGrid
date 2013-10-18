@@ -534,7 +534,7 @@
                     <i class="icon-plus<%if (isSelected) {%> icon-minus<%}%>">\
                 </td>\
             <%} _.each(values, function (row) {%>\
-                <td <% if (row.name === "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>>\
+                <td class="<% if (row.name === "bbGrid-actions-cell") {%>bbGrid-actions-cell<%}%> <%=row.className%>">\
                     <%=row.value%>\
                 </td>\
             <%})%>', null, templateSettings
@@ -733,7 +733,7 @@
             <%} if (isContainSubgrid) {%>\
                 <th style="width:15px"/>\
                 <%} _.each(cols, function (col) {%>\
-                    <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
+                    <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%> class="<%=col.className%>"><%=col.title%><i <% \
                         if (col.sortOrder === "asc" ) {%>class="icon-chevron-up"<%} else \
                             if (col.sortOrder === "desc" ) {%>class="icon-chevron-down"<% } %>/></th>\
             <%})%>', null, templateSettings
@@ -897,8 +897,8 @@
             <%} if (isContainSubgrid) {%>\
                 <td></td>\
             <% } %>\
-            <%_.each(cols, function (col) {%>\
-                <td>\
+            <%_.each(cols, function (col) {console.log(col.className);%>\
+                <td <%if (typeof col.className !=="undefined") {%>class="<%=col.className%>"<%}%>>\
                     <%if (col.filter) {%>\
                         <<% if (col.filterType === "input") \
                             {%>input<%}else{%>select<%\
