@@ -1,4 +1,4 @@
-//     bbGrid.js 0.8.3
+//     bbGrid.js 0.8.5
 
 //     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
 //     bbGrid may be freely distributed under the MIT license.
@@ -41,11 +41,11 @@
         }
     };
 
-    viewOptions = ['autofetch', 'buttons', 'colModel', 'container',
+    viewOptions = ['autofetch', 'buttons', 'actions', 'colModel', 'container',
         'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows',
-        'subgrid', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
+        'subgrid', 'subgridControl', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
         'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded',
-        'onRowCollapsed', 'events'];
+        'onRowCollapsed', 'events', 'searchList'];
 
     bbGrid.RowView = function (options) {
         this.events = {
@@ -162,14 +162,18 @@
             isDisabled = this.model.get('cb_disabled') || false;
             html = this.template({
                 isMultiselect: this.view.multiselect,
-                isContainSubgrid: this.view.subgrid,
+                isContainSubgrid: this.view.subgrid && this.view.subgridControl,
                 isSelected: this.selected || false,
                 isChecked: isChecked,
                 isDisabled: isDisabled,
                 values: _.map(cols, function (col) {
                     if (col.actions) {
                         col.name = 'bbGrid-actions-cell';
-                        col.value = col.actions.call(self, self.model.id, self.model.attributes, self.view);
+                        if (_.isFunction(col.actions)) {
+                            col.value = col.actions.call(self, self.model.id, self.model.attributes, self.view);
+                        } else {
+                            col.value = self.view.actions[col.actions].call(self, self.model.id, self.model.attributes, self.view);
+                        }
                     } else {
                         col.value = self.model.attributes[col.name];
                     }
@@ -227,7 +231,7 @@
                 <div class="bbGrid-pager-rowlist-label pull-left"><%=dict.rowsOnPage%>:</div>\
                 <select class="bbGrid-pager-rowlist">\
                     <% _.each(rowlist, function (val) {%>\
-                        <option <% if (rows === val) {%>selected="selected"<%}%>><%=val%></option>\
+                        <option value="<%=val.value%>" <% if (rows === val.value) {%>selected="selected"<%}%>><%=val.label%></option>\
                     <%})%>\
                 </select>\
             <%}%>', null, templateSettings
@@ -244,7 +248,7 @@
             this.view.trigger('pageChanged', event);
         },
         initPager: function () {
-            var pagerHtml;
+            var pagerHtml, rowList, self = this;
             if (!this.view.loadDynamic) {
                 this.view.cntPages = Math.ceil(this.view.collection.length / this.view.rows);
             }
@@ -253,12 +257,24 @@
             }
             this.view.currPage = this.view.currPage || 1;
             this.view.cntPages = this.view.cntPages || 1;
+            rowList = _.map(this.view.rowList, function (row) {
+                if (!_.isObject(row)) {
+                    row = {value: row, label: row};
+                }
+                if (row.value === 0) {
+                    row = {
+                        value: self.view.collection.length,
+                        label: self.view.dict.all
+                    };
+                }
+                return row;
+            });
             pagerHtml = this.template({
                 dict: this.view.dict,
                 page: this.view.currPage,
                 cntpages: this.view.cntPages,
                 rows: this.view.rows,
-                rowlist: this.view.rowList || false
+                rowlist: rowList && rowList.length ? rowList : false
             });
             if (!this.view.rowList) {
                 this.$el.addClass('bbGrid-pager-container-norowslist');
@@ -310,10 +326,10 @@
             }
             cols = _.filter(this.view.colModel, function (col) {return !col.hidden; });
             cols = _.map(cols, function (col) { col.title = col.title || col.name; return col; });
-            this.view.colLength = cols.length + (this.view.multiselect ? 1 : 0) + (this.view.subgrid ? 1 : 0);
+            this.view.colLength = cols.length + (this.view.multiselect ? 1 : 0) + (this.view.subgrid && this.view.subgridControl ? 1 : 0);
             theadHtml = this.template({
                 isMultiselect: this.view.multiselect,
-                isContainSubgrid: this.view.subgrid,
+                isContainSubgrid: this.view.subgrid && this.view.subgridControl,
                 cols: cols
             });
             this.$headHolder.html(theadHtml);
@@ -428,13 +444,19 @@
             $('button span[name=column]', this.$el).text(el.text);
         },
         render: function () {
-            var searchBarHtml = this.template({
-                dict: this.view.dict,
-                searchOptionIndex: this.searchOptionIndex,
-                cols: _.filter(this.view.colModel, function (col) {
-                    return col.name && !col.hidden;
-                })
-            });
+            var self = this,
+                searchColList = _.filter(this.view.colModel, function (col) {
+                    if (self.view.searchList.length) {
+                        return col.name && !col.hidden && $.inArray(col.name, self.view.searchList) >= 0;
+                    } else {
+                        return col.name && !col.hidden;
+                    }
+                }),
+                searchBarHtml = this.template({
+                    dict: this.view.dict,
+                    searchOptionIndex: this.searchOptionIndex,
+                    cols: searchColList
+                });
             this.$el.html(searchBarHtml);
             return this.$el;
         }
@@ -540,7 +562,7 @@
             filterBarHtml = this.template({
                 dict: this.view.dict,
                 isMultiselect: this.view.multiselect,
-                isContainSubgrid: this.view.subgrid,
+                isContainSubgrid: this.view.subgrid && this.view.subgridControl,
                 filterOptions: this.view.filterOptions,
                 cols: _.filter(this.view.colModel, function (col) {return !col.hidden; }),
                 options: self.options
@@ -553,12 +575,17 @@
     bbGrid.FilterView.extend = Backbone.View.extend;
     
     bbGrid.View = function (options) {
-        var self = this;
+        var self = this, json_options = {};
         options || (options = {});
+        json_options = $(options.container).find('script[type="application/json"]').html() || {};
+        if (json_options.length) {
+            json_options = $.parseJSON(json_options);
+            _.extend(options, json_options);
+        }
         _.extend(this, _.pick(options, _.union(viewOptions, _.values(options.events || {}))));
         Backbone.View.apply(this, [options]);
         _.bindAll(this, 'numberComparator', 'stringComparator');
-        this.setDict(bbGrid.lang);
+        this.setDict(bbGrid.lang, options.dict);
         this.on('all', this.EventHandler, this);
         this.entities = _.extend({
             RowView: bbGrid.RowView,
@@ -591,14 +618,18 @@
     };
 
     _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
+        subgridControl: true,
         lang: bbGrid.lang,
         tagName: 'div',
         className: 'bbGrid-container',
-        setDict: function (lang) {
+        setDict: function (lang, dict) {
             if (bbGrid.Dict.hasOwnProperty(lang)) {
                 this.lang = lang;
             }
             this.dict = bbGrid.Dict[this.lang];
+            if (dict) {
+                this.dict = $.extend(true, {}, bbGrid.Dict[this.lang], dict);
+            }
         },
         EventHandler: function (eventName, option1, option2) {
             var options = arguments[arguments.length - 1];
@@ -837,9 +868,10 @@
             }
         },
         toggleSubgridRow: function (model, $el, options) {
-            var View, colspan, subgridRow, subgridContainerHtml;
+            var View, colspan, subgridRow, subgridContainerHtml, colNumber = this.subgridControl ? 1 : 0;
             options = options || {};
             View = this.subgridAccordion ? this : this.rowViews[model.id];
+            
             if (this.subgridAccordion) {
                 $('tr', this.$el).removeClass('warning');
                 _.each(this.rowViews, function (row) {
@@ -854,20 +886,25 @@
                 delete View.$subgridContainer;
                 if (View.expandedRowId === model.id && !options.isShown) {
                     if (this.onRowCollapsed) {
-                        this.onRowCollapsed($('td', View.$subgridContainer)[1], model.id);
+                        this.onRowCollapsed($('td', View.$subgridContainer)[colNumber], model.id);
                     }
                     return false;
                 }
             }
             $('td.bbGrid-subgrid-control i', $el).addClass('icon-minus');
             colspan = this.multiselect ? 2 : 1;
-            subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=extra%>"/><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
-            subgridContainerHtml = subgridRow({ extra: colspan, colspan: this.colLength - colspan });
+            colspan = this.subgridControl ? colspan : colspan - 1;
+            subgridRow = _.template('<tr class="bbGrid-subgrid-row"><% if (control) { %><td colspan="<%=extra%>"/><% } %><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
+            subgridContainerHtml = subgridRow({
+                control: this.subgridControl,
+                extra: colspan,
+                colspan: this.colLength - colspan
+            });
             View.$subgridContainer = $(subgridContainerHtml);
             $el.after(View.$subgridContainer);
             View.expandedRowId = model.id;
             if (this.onRowExpanded) {
-                this.onRowExpanded($('td', View.$subgridContainer)[1], model.id);
+                this.onRowExpanded($('td', View.$subgridContainer)[colNumber], model.id);
             }
         },
         onCheckAll: function (event) {
@@ -935,7 +972,7 @@
             }
             interval = options.interval || this.getIntervalByPage(this.currPage);
             this.showCollection(this.collection.models.slice(interval.s, interval.e));
-            if (!this.autofetch && this.collection.length > 0) {
+            if (!this.autofetch && this.collection.length >= 0) {
                 this.toggleLoading(false);
             }
             if (this.onReady && !this.autofetch) {
