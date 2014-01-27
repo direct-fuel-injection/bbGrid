@@ -155,6 +155,11 @@
                 this.view.onRowClick(this.model, options);
             }
         },
+        getPropByStr: function (object, prop) {
+            var props = prop.split('.'), obj = object;
+            while (props.length && (obj = obj[props.shift()]));
+            return obj || object[prop];
+        },
         render: function () {
             var self = this, isChecked, isDisabled, html,
                 cols = _.filter(this.view.colModel, function (col) {return !col.hidden; });
@@ -175,7 +180,7 @@
                             col.value = self.view.actions[col.actions].call(self, self.model.id, self.model.attributes, self.view);
                         }
                     } else {
-                        col.value = self.model.attributes[col.name];
+                        col.value = self.getPropByStr(self.model.attributes, col.name);
                     }
                     return col;
                 })
