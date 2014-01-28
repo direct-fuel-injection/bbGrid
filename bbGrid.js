@@ -451,7 +451,7 @@
         render: function () {
             var self = this,
                 searchColList = _.filter(this.view.colModel, function (col) {
-                    if (self.view.searchList.length) {
+                    if (self.view.searchList && self.view.searchList.length) {
                         return col.name && !col.hidden && $.inArray(col.name, self.view.searchList) >= 0;
                     } else {
                         return col.name && !col.hidden;
