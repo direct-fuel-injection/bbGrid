@@ -128,6 +128,9 @@
             if (this.view.multiselect && className === 'bbGrid-subgrid-control') {
                 return false;
             }
+            if (!this.view.selectionEnabled) {
+                return false;
+            }
             this.$el.addClass('warning');
             if (this.view.multiselect || this.view.subgrid) {
                 this.selected = this.selected ? false : true;
@@ -620,6 +623,7 @@
                 return response.rows;
             };
         }
+        this.selectionEnabled = true;
     };
 
     _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
@@ -863,6 +867,9 @@
         setRowSelected: function (options) {
             var event = {}, className;
             options || (options = {});
+            if (!this.selectionEnabled) {
+                return false;
+            }
             if (options.id && _.has(this.rowViews, options.id)) {
                 if (this.multiselect) {
                     className = '.bbGrid-multiselect-control';
