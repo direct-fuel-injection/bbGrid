@@ -623,10 +623,10 @@
                 return response.rows;
             };
         }
-        this.selectionEnabled = true;
     };
 
     _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
+        selectionEnabled: true,
         subgridControl: true,
         lang: bbGrid.lang,
         tagName: 'div',
