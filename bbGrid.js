@@ -8,7 +8,7 @@
 //     This is a forked version, maintained by Dirk Bunk: https://github.com/krix/bbGrid/blob/master/bbGrid.js
 //     Changes:
 //     21.03.2014, Dirk Bunk: Changed 'icon-...' to 'glyphicon glyphicon-...' to make use of Bootstrap 3.
-//     24.04.2014, Dirk Bunk: Changed 'model.id' to 'model.cid' to correctly fill 'view.selectedRows' again.
+//     24.03.2014, Dirk Bunk: Changed 'model.id' to 'model.cid' to correctly fill 'view.selectedRows' again.
 (function () {
     var templateSettings = {
 	    evaluate: /<%([\s\S]+?)%>/g,
