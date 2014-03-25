@@ -9,6 +9,7 @@
 //     Changes:
 //     21.03.2014, Dirk Bunk: Changed 'icon-...' to 'glyphicon glyphicon-...' to make use of Bootstrap 3.
 //     24.03.2014, Dirk Bunk: Changed 'model.id' to 'model.cid' to correctly fill 'view.selectedRows' again.
+//     25.03.2014, Dirk Bunk: Changed class 'warning' to 'selected', to better fit our existing style sheets.
 (function () {
     var templateSettings = {
 	    evaluate: /<%([\s\S]+?)%>/g,
@@ -136,13 +137,13 @@
             if (!this.view.selectionEnabled) {
                 return false;
             }
-            this.$el.addClass('warning');
+            this.$el.addClass('selected');
             if (this.view.multiselect || this.view.subgrid) {
                 this.selected = this.selected ? false : true;
                 this.selected = options.isShown || this.selected;
                 $('input[type=checkbox]', this.$el).prop('checked', this.selected);
                 if (!this.selected && !options.isShown) {
-                    this.$el.removeClass('warning');
+                    this.$el.removeClass('selected');
                 }
             } else {
                 this.selected = true;
@@ -195,7 +196,7 @@
             });
             if (isChecked) {
                 this.selected = true;
-                this.$el.addClass('warning');
+                this.$el.addClass('selected');
             }
             this.$el.html(html);
             return this;
@@ -890,7 +891,7 @@
             View = this.subgridAccordion ? this : this.rowViews[model.cid];
             
             if (this.subgridAccordion) {
-                $('tr', this.$el).removeClass('warning');
+                $('tr', this.$el).removeClass('selected');
                 _.each(this.rowViews, function (row) {
                     if (row.model.cid !== model.cid) {
                         row.selected = false;
@@ -1086,7 +1087,7 @@
         },
         resetSelection: function () {
             if (!this.multiselect) {
-                $('tr', this.$el).removeClass('warning');
+                $('tr', this.$el).removeClass('selected');
             }
         },
         getSelectedModels: function () {
