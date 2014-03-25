@@ -4,6 +4,11 @@
 //     bbGrid may be freely distributed under the MIT license.
 //     For all details and documentation:
 //     http://direct-fuel-injection.github.com/bbGrid/
+//
+//     This is a forked version, maintained by Dirk Bunk: https://github.com/krix/bbGrid/blob/master/bbGrid.js
+//     Changes:
+//     21.03.2014, Dirk Bunk: Changed 'icon-...' to 'glyphicon glyphicon-...' to make use of Bootstrap 3.
+//     24.04.2014, Dirk Bunk: Changed 'model.id' to 'model.cid' to correctly fill 'view.selectedRows' again.
 (function () {
     var templateSettings = {
 	    evaluate: /<%([\s\S]+?)%>/g,
@@ -69,7 +74,7 @@
             <td class="bbGrid-multiselect-control"><input type="checkbox" <% if (isDisabled) { %>disabled="disabled"<% } %><% if (isChecked) {%>checked="checked"<%}%>></td>\
             <%} if (isContainSubgrid) {%>\
                 <td class="bbGrid-subgrid-control">\
-                    <i class="icon-plus<%if (isSelected) {%> icon-minus<%}%>">\
+                    <i class="glyphicon glyphicon-plus<%if (isSelected) {%> glyphicon glyphicon-minus<%}%>">\
                 </td>\
             <%} _.each(values, function (row) {%>\
                 <td contenteditable="<%=row.editable || false%>" <% if (row.name === "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>>\
@@ -95,12 +100,12 @@
         },
         modelRemoved: function (model) {
             var self = this,
-                view = this.view.subgridAccordion ? this.view : this.view.rowViews[model.id];
+                view = this.view.subgridAccordion ? this.view : this.view.rowViews[model.cid];
             if (view && view.$subgridContainer) {
                 view.$subgridContainer.remove();
             }
             this.view.selectedRows = _.reject(this.view.selectedRows, function (rowId) {
-                return rowId === self.model.id;
+                return rowId === self.model.cid;
             });
             this.remove();
         },
@@ -144,14 +149,14 @@
             }
             if (this.selected || options.isShown) {
                 if (this.view.multiselect || (this.view.subgrid && !this.view.subgridAccordion)) {
-                    this.view.selectedRows.push(this.model.id);
+                    this.view.selectedRows.push(this.model.cid);
                 } else {
-                    this.view.selectedRows = [this.model.id];
+                    this.view.selectedRows = [this.model.cid];
                 }
             } else {
                 this.view.selectedRows = _.reject(this.view.selectedRows,
                     function (rowId) {
-                        return rowId === self.model.id;
+                        return rowId === self.model.cid;
                     });
             }
             if (this.view.onRowClick) {
@@ -166,7 +171,7 @@
         render: function () {
             var self = this, isChecked, isDisabled, html,
                 cols = _.filter(this.view.colModel, function (col) {return !col.hidden; });
-            isChecked = ($.inArray(this.model.id, this.view.selectedRows) >= 0);
+            isChecked = ($.inArray(this.model.cid, this.view.selectedRows) >= 0);
             isDisabled = this.model.get('cb_disabled') || false;
             html = this.template({
                 isMultiselect: this.view.multiselect,
@@ -178,9 +183,9 @@
                     if (col.actions) {
                         col.name = 'bbGrid-actions-cell';
                         if (_.isFunction(col.actions)) {
-                            col.value = col.actions.call(self, self.model.id, self.model.attributes, self.view);
+                            col.value = col.actions.call(self, self.model.cid, self.model.attributes, self.view);
                         } else {
-                            col.value = self.view.actions[col.actions].call(self, self.model.id, self.model.attributes, self.view);
+                            col.value = self.view.actions[col.actions].call(self, self.model.cid, self.model.attributes, self.view);
                         }
                     } else {
                         col.value = self.getPropByStr(self.model.attributes, col.name);
@@ -217,10 +222,10 @@
             '<div class="span bbGrid-pager">\
                 <ul class="nav nav-pills">\
                     <li<%if (page <= 1) {%> class="active"<%}%>>\
-                        <a class="first"><i class="icon-step-backward"/></a>\
+                        <a class="first"><i class="glyphicon glyphicon-step-backward"/></a>\
                     </li>\
                     <li <%if (page <= 1) {%> class="active"<%}%>>\
-                        <a class="left"><i class="icon-backward"/></a>\
+                        <a class="left"><i class="glyphicon glyphicon-backward"/></a>\
                     </li>\
                     <li>\
                         <div class="bbGrid-page-counter pull-left"><%=dict.page%>.</div>\
@@ -228,10 +233,10 @@
                         <div class="bbGrid-page-counter-right pull-right"> <%=dict.prep%> <%=cntpages%> </div>\
                     </li>\
                     <li<%if (page === cntpages || page === 0) {%> class="active"<%}%>>\
-                        <a class="right"><i class="icon-forward"/></a>\
+                        <a class="right"><i class="glyphicon glyphicon-forward"/></a>\
                     </li>\
                     <li<%if (page === cntpages || page === 0) {%> class="active"<%}%>>\
-                        <a class="last"><i class="icon-step-forward"/></a>\
+                        <a class="last"><i class="glyphicon glyphicon-step-forward"/></a>\
                     </li>\
                 </ul>\
                 </div>\
@@ -316,8 +321,8 @@
                 <th style="width:15px"/>\
                 <%} _.each(cols, function (col) {%>\
                     <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
-                        if (col.sortOrder === "asc" ) {%>class="icon-chevron-up"<%} else \
-                            if (col.sortOrder === "desc" ) {%>class="icon-chevron-down"<% } %>/></th>\
+                        if (col.sortOrder === "asc" ) {%>class="glyphicon glyphicon-chevron-up"<%} else \
+                            if (col.sortOrder === "desc" ) {%>class="glyphicon glyphicon-chevron-down"<% } %>/></th>\
             <%})%>', null, templateSettings
         ),
         onAllCheckbox: function (event) {
@@ -882,28 +887,28 @@
         toggleSubgridRow: function (model, $el, options) {
             var View, colspan, subgridRow, subgridContainerHtml, colNumber = this.subgridControl ? 1 : 0;
             options = options || {};
-            View = this.subgridAccordion ? this : this.rowViews[model.id];
+            View = this.subgridAccordion ? this : this.rowViews[model.cid];
             
             if (this.subgridAccordion) {
                 $('tr', this.$el).removeClass('warning');
                 _.each(this.rowViews, function (row) {
-                    if (row.model.id !== model.id) {
+                    if (row.model.cid !== model.cid) {
                         row.selected = false;
                     }
                 });
             }
             if (View.$subgridContainer) {
-                $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('icon-minus');
+                $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('glyphicon glyphicon-minus');
                 View.$subgridContainer.remove();
                 delete View.$subgridContainer;
-                if (View.expandedRowId === model.id && !options.isShown) {
+                if (View.expandedRowId === model.cid && !options.isShown) {
                     if (this.onRowCollapsed) {
-                        this.onRowCollapsed($('td', View.$subgridContainer)[colNumber], model.id);
+                        this.onRowCollapsed($('td', View.$subgridContainer)[colNumber], model.cid);
                     }
                     return false;
                 }
             }
-            $('td.bbGrid-subgrid-control i', $el).addClass('icon-minus');
+            $('td.bbGrid-subgrid-control i', $el).addClass('glyphicon glyphicon-minus');
             colspan = this.multiselect ? 2 : 1;
             colspan = this.subgridControl ? colspan : colspan - 1;
             subgridRow = _.template('<tr class="bbGrid-subgrid-row"><% if (control) { %><td colspan="<%=extra%>"/><% } %><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
@@ -914,9 +919,9 @@
             });
             View.$subgridContainer = $(subgridContainerHtml);
             $el.after(View.$subgridContainer);
-            View.expandedRowId = model.id;
+            View.expandedRowId = model.cid;
             if (this.onRowExpanded) {
-                this.onRowExpanded($('td', View.$subgridContainer)[colNumber], model.id);
+                this.onRowExpanded($('td', View.$subgridContainer)[colNumber], model.cid);
             }
         },
         onCheckAll: function (event) {
@@ -939,8 +944,8 @@
             if (this.rows === _.size(this.rowViews)) {
                 return false;
             }
-            this.rowViews[model.id] = new this.entities.RowView({model: model, view: this});
-            this.$grid.append(this.rowViews[model.id].render().el);
+            this.rowViews[model.cid] = new this.entities.RowView({model: model, view: this});
+            this.$grid.append(this.rowViews[model.cid].render().el);
         },
         renderPage: function (options) {
             options = options || {silent: false};
