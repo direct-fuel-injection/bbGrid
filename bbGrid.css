@@ -4,7 +4,11 @@
 *     bbGrid may be freely distributed under the MIT license.
 *     For all details and documentation:
 *     http://direct-fuel-injection.github.com/bbGrid/
- */
+*
+*     This is a forked version, maintained by Dirk Bunk: https://github.com/krix/bbGrid/blob/master/bbGrid.js
+*     Changes:
+*     25.03.2014, Dirk Bunk: Commented-out 'tr:hover' pseudoselector due to mobile performance issues.
+*/
 .bbGrid-grid { table-layout: fixed; font-size: 11px}
 .bbGrid-grid td{ cursor: default; overflow: hidden; white-space:nowrap; line-height: 1; vertical-align: middle}
 .bbGrid-grid tr{height:2.4em;}
@@ -40,11 +44,11 @@
 .bbGrid-container .bbGrid-grid-nav .bbGrid-pager-rowlist {width: 56px; margin-top: 2px; margin-left:2px; padding: 3px 2px; height: 24px; font-size: 11px}
 .bbGrid-pager-container .bbGrid-pager ul li {list-style:none;padding-left: 0;}
 .bbGrid-container .bbGrid-pager-rowlist-label {line-height: 20px; font-size: 11px; margin-top:2px; padding: 2px 0px 0px 4px}
-.bbGrid-grid tbody tr.bbGrid-row:hover td{background-color:#f5f5f5;}
+/*.bbGrid-grid tbody tr.bbGrid-row:hover td{background-color:#f5f5f5;}
 .bbGrid-grid tbody tr.success:hover td{background-color:#d0e9c6;}
 .bbGrid-grid tbody tr.error:hover td{background-color:#ebcccc;}
 .bbGrid-grid tbody tr.warning:hover td{background-color:#faf2cc;}
-.bbGrid-grid tbody tr.info:hover td{background-color:#c4e3f3;}
+.bbGrid-grid tbody tr.info:hover td{background-color:#c4e3f3;}*/
 .bbGrid-grid caption{font-size: 1.4em;font-weight: bold;line-height: 2em}
 .bbGrid-search-bar {padding: 2px}
 .bbGrid-search-bar input, .bbGrid-search-bar button{padding: 1px 6px;}
