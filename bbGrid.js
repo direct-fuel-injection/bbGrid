@@ -10,12 +10,22 @@
 //     21.03.2014, Dirk Bunk: Changed 'icon-...' to 'glyphicon glyphicon-...' to make use of Bootstrap 3.
 //     24.03.2014, Dirk Bunk: Changed 'model.id' to 'model.cid' to correctly fill 'view.selectedRows' again.
 //     25.03.2014, Dirk Bunk: Changed class 'warning' to 'selected', to better fit our existing style sheets.
-(function () {
+//     26.03.2014, Dirk Bunk: Make 'bbGrid' optionally an AMD.
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['underscore', 'backbone'], factory);
+    } else {
+        // Browser globals
+        factory(_, Backbone);
+    }
+}(function(_, Backbone){
     var templateSettings = {
-	    evaluate: /<%([\s\S]+?)%>/g,
-	    interpolate: /<%=([\s\S]+?)%>/g,
-	    escape: /<%-([\s\S]+?)%>/g
-	}, viewOptions,
+          evaluate: /<%([\s\S]+?)%>/g,
+          interpolate: /<%=([\s\S]+?)%>/g,
+          escape: /<%-([\s\S]+?)%>/g
+        }, 
+        viewOptions,
         bbGrid = this.bbGrid = {
             'VERSION': '0.8.3',
             'lang': 'en',
@@ -1097,4 +1107,4 @@
     });
 
     bbGrid.View.extend = Backbone.View.extend;
-}).call(this);
+}));
