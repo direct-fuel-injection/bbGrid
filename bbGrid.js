@@ -14,10 +14,12 @@
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['underscore', 'backbone'], factory);
+        define(['underscore', 'backbone'], function (_, Backbone) {
+            return factory(_, Backbone);
+        });
     } else {
         // Browser globals
-        factory(_, Backbone);
+        return factory(_, Backbone);
     }
 }(function(_, Backbone){
     var templateSettings = {
@@ -1107,4 +1109,6 @@
     });
 
     bbGrid.View.extend = Backbone.View.extend;
+
+    return bbGrid;
 }));
