@@ -12,6 +12,9 @@
 //     25.03.2014, Dirk Bunk: Changed class 'warning' to 'selected', to better fit our existing style sheets.
 //     26.03.2014, Dirk Bunk: Make 'bbGrid' optionally an AMD.
 //     31.03.2014, Dirk Bunk: Removed default styles 'table-bordered table-condensed' from table element.
+//                            Bugfix for Bootstrap 3 Glyphicons in expandable rows.
+//                            Expand rows only if clicked on the 'bbGrid-subgrid-control' icon.
+//                            Added parseInt to numberComparator, which is not working otherwise.
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -663,8 +666,9 @@
             var options = arguments[arguments.length - 1];
             switch (eventName) {
             case 'selected':
-                if (this.subgrid) {
-                    this.toggleSubgridRow(option1, option2, options);
+                if (this.subgrid && $(options.currentTarget).hasClass('bbGrid-subgrid-control')) {
+                    console.log(options);
+										this.toggleSubgridRow(option1, option2, options);
                 } else {
                     this.resetSelection();
                 }
@@ -772,7 +776,7 @@
             this.collection.on('all', this.collectionEventHandler, this);
         },
         numberComparator: function (model) {
-            return model.get(this.sortName);
+            return parseInt(model.get(this.sortName), 10);
         },
         stringComparator: function (model) {
             return ("" + model.get(this.sortName)).toLowerCase();
@@ -899,7 +903,7 @@
             }
         },
         toggleSubgridRow: function (model, $el, options) {
-            var View, colspan, subgridRow, subgridContainerHtml, colNumber = this.subgridControl ? 1 : 0;
+            var View, colspan, subgridRow, subgridContainerHtml;
             options = options || {};
             View = this.subgridAccordion ? this : this.rowViews[model.cid];
             
@@ -912,30 +916,27 @@
                 });
             }
             if (View.$subgridContainer) {
-                $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('glyphicon glyphicon-minus');
+                $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('glyphicon-minus');
                 View.$subgridContainer.remove();
                 delete View.$subgridContainer;
                 if (View.expandedRowId === model.cid && !options.isShown) {
                     if (this.onRowCollapsed) {
-                        this.onRowCollapsed($('td', View.$subgridContainer)[colNumber], model.cid);
+                        this.onRowCollapsed($('td', View.$subgridContainer)[0], model.cid);
                     }
                     return false;
                 }
             }
             $('td.bbGrid-subgrid-control i', $el).addClass('glyphicon glyphicon-minus');
-            colspan = this.multiselect ? 2 : 1;
-            colspan = this.subgridControl ? colspan : colspan - 1;
-            subgridRow = _.template('<tr class="bbGrid-subgrid-row"><% if (control) { %><td colspan="<%=extra%>"/><% } %><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
-            subgridContainerHtml = subgridRow({
-                control: this.subgridControl,
-                extra: colspan,
+            colspan = this.multiselect ? 1 : 0;
+						subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
+						subgridContainerHtml = subgridRow({
                 colspan: this.colLength - colspan
             });
             View.$subgridContainer = $(subgridContainerHtml);
             $el.after(View.$subgridContainer);
             View.expandedRowId = model.cid;
             if (this.onRowExpanded) {
-                this.onRowExpanded($('td', View.$subgridContainer)[colNumber], model.cid);
+								this.onRowExpanded($('td', View.$subgridContainer)[0], model.cid);
             }
         },
         onCheckAll: function (event) {
