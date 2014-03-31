@@ -11,6 +11,7 @@
 //     24.03.2014, Dirk Bunk: Changed 'model.id' to 'model.cid' to correctly fill 'view.selectedRows' again.
 //     25.03.2014, Dirk Bunk: Changed class 'warning' to 'selected', to better fit our existing style sheets.
 //     26.03.2014, Dirk Bunk: Make 'bbGrid' optionally an AMD.
+//     31.03.2014, Dirk Bunk: Removed default styles 'table-bordered table-condensed' from table element.
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -737,7 +738,7 @@
                 this.$el.css('width', this.width);
             }
             if (!this.$grid) {
-                this.$grid = $('<table class="bbGrid-grid table table-bordered table-condensed" />');
+                this.$grid = $('<table class="bbGrid-grid table" />');
                 if (this.caption) {
                     this.$grid.append('<caption>' + this.caption + '</caption>');
                 }
