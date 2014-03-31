@@ -667,8 +667,7 @@
             switch (eventName) {
             case 'selected':
                 if (this.subgrid && $(options.currentTarget).hasClass('bbGrid-subgrid-control')) {
-                    console.log(options);
-										this.toggleSubgridRow(option1, option2, options);
+		    this.toggleSubgridRow(option1, option2, options);
                 } else {
                     this.resetSelection();
                 }
