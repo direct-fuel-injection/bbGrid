@@ -45,7 +45,7 @@
         'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows',
         'subgrid', 'subgridControl', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
         'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded',
-        'onRowCollapsed', 'events', 'searchList'];
+        'onRowCollapsed', 'events', 'searchList', 'escape'];
 
     bbGrid.RowView = function (options) {
         this.events = {
@@ -164,10 +164,11 @@
             return obj || object[prop];
         },
         render: function () {
-            var self = this, isChecked, isDisabled, html,
+            var self = this, isChecked, isDisabled, html, isEscaped;
                 cols = _.filter(this.view.colModel, function (col) {return !col.hidden; });
             isChecked = ($.inArray(this.model.id, this.view.selectedRows) >= 0);
             isDisabled = this.model.get('cb_disabled') || false;
+            isEscaped = this.view.escape
             html = this.template({
                 isMultiselect: this.view.multiselect,
                 isContainSubgrid: this.view.subgrid && this.view.subgridControl,
@@ -184,6 +185,9 @@
                         }
                     } else {
                         col.value = self.getPropByStr(self.model.attributes, col.name);
+                    }
+                    if (isEscaped) {
+                      col.value = _.escape(col.value)
                     }
                     return col;
                 })
