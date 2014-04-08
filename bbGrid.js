@@ -16,6 +16,7 @@
 //                            Expand rows only if clicked on the 'bbGrid-subgrid-control' icon.
 //                            Added parseInt to numberComparator, which is not working otherwise.
 //     07.04.2014, Dirk Bunk: Bugfix for setRowSelected function, where the model.id instead of model.cid was used.
+//     08.04.2014, Dirk Bunk: Automatically add 'odd' or 'even' class to rows.
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -215,6 +216,14 @@
                 this.selected = true;
                 this.$el.addClass('selected');
             }
+            
+            // Check the amount of rows before this row and add a class that shows if this row is odd or even
+            if (this.view.$el.find('tr.bbGrid-row').length % 2 === 0) {
+                this.$el.addClass('odd');
+            } else {
+                this.$el.addClass('even');
+            }
+            
             this.$el.html(html);
             return this;
         }
