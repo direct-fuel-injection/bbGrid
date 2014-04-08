@@ -15,6 +15,7 @@
 //                            Bugfix for Bootstrap 3 Glyphicons in expandable rows.
 //                            Expand rows only if clicked on the 'bbGrid-subgrid-control' icon.
 //                            Added parseInt to numberComparator, which is not working otherwise.
+//     07.04.2014, Dirk Bunk: Bugfix for setRowSelected function, where the model.id instead of model.cid was used.
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -667,7 +668,7 @@
             switch (eventName) {
             case 'selected':
                 if (this.subgrid && $(options.currentTarget).hasClass('bbGrid-subgrid-control')) {
-		    this.toggleSubgridRow(option1, option2, options);
+                    this.toggleSubgridRow(option1, option2, options);
                 } else {
                     this.resetSelection();
                 }
@@ -892,13 +893,13 @@
             if (!this.selectionEnabled) {
                 return false;
             }
-            if (options.id && _.has(this.rowViews, options.id)) {
+            if (options.cid && _.has(this.rowViews, options.cid)) {
                 if (this.multiselect) {
                     className = '.bbGrid-multiselect-control';
                 }
-                event.currentTarget = $('td' + className, this.rowViews[options.id].$el).first()[0];
+                event.currentTarget = $('td' + className, this.rowViews[options.cid].$el).first()[0];
                 event.isShown = options.isShown || false;
-                this.rowViews[options.id].setSelection(event);
+                this.rowViews[options.cid].setSelection(event);
             }
         },
         toggleSubgridRow: function (model, $el, options) {
@@ -927,15 +928,15 @@
             }
             $('td.bbGrid-subgrid-control i', $el).addClass('glyphicon glyphicon-minus');
             colspan = this.multiselect ? 1 : 0;
-						subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
-						subgridContainerHtml = subgridRow({
+            subgridRow = _.template('<tr class="bbGrid-subgrid-row"><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
+            subgridContainerHtml = subgridRow({
                 colspan: this.colLength - colspan
             });
             View.$subgridContainer = $(subgridContainerHtml);
             $el.after(View.$subgridContainer);
             View.expandedRowId = model.cid;
             if (this.onRowExpanded) {
-								this.onRowExpanded($('td', View.$subgridContainer)[0], model.cid);
+                this.onRowExpanded($('td', View.$subgridContainer)[0], model.cid);
             }
         },
         onCheckAll: function (event) {
