@@ -18,6 +18,15 @@
                     this.lang = lang;
                 }
             }
+        },
+        parseWidth = function (node) {
+            return parseFloat(node.style.width.replace('%', ''));
+        },
+        pointerX = function (e) {
+            if (e.type.indexOf('touch') === 0) {
+                return (e.originalEvent.touches[0] || e.originalEvent.changedTouches[0]).pageX;
+            }
+            return e.pageX;
         };
 
     bbGrid.Dict = {
@@ -45,7 +54,7 @@
         'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows',
         'subgrid', 'subgridControl', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
         'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded',
-        'onRowCollapsed', 'events', 'searchList'];
+        'onRowCollapsed', 'events', 'searchList', 'sortSequence', 'resizable', 'resizeFromBody'];
 
     bbGrid.RowView = function (options) {
         this.events = {
@@ -72,7 +81,10 @@
                     <i class="icon-plus<%if (isSelected) {%> icon-minus<%}%>">\
                 </td>\
             <%} _.each(values, function (row) {%>\
-                <td contenteditable="<%=row.editable || false%>" <% if (row.name === "bbGrid-actions-cell") {%>class="bbGrid-actions-cell"<%}%>>\
+                <td <% if (row.className) { %>class="<%=row.className%>"<% } %> contenteditable="<%=row.editable || false%>"\
+                    <% _.each(row.attributes, function (value, key) { %>\
+                     <%=key%>="<%=value%>" \
+                    <% }); %>>\
                     <%=row.value%>\
                 </td>\
             <%})%>', null, templateSettings
@@ -177,12 +189,15 @@
                 values: _.map(cols, function (col) {
                     if (col.actions) {
                         col.name = 'bbGrid-actions-cell';
+                        col.className = col.name;
                         if (_.isFunction(col.actions)) {
                             col.value = col.actions.call(self, self.model.id, self.model.attributes, self.view);
                         } else {
                             col.value = self.view.actions[col.actions].call(self, self.model.id, self.model.attributes, self.view);
                         }
                     } else {
+                        col.attributes = _.omit(col, 'name', 'value', 'className', 'title', 'editable', 'width', 'index',
+                            'hidden', 'sorttype', 'filter', 'filterType', 'sortOrder', 'filterColName', 'resizable', 'attributes');
                         col.value = self.getPropByStr(self.model.attributes, col.name);
                     }
                     return col;
@@ -192,7 +207,7 @@
                 this.selected = true;
                 this.$el.addClass('warning');
             }
-            this.$el.html(html);
+            this.$el.html(html).attr('data-cid', this.model.cid);
             return this;
         }
     });
@@ -217,10 +232,10 @@
             '<div class="span bbGrid-pager">\
                 <ul class="nav nav-pills">\
                     <li<%if (page <= 1) {%> class="active"<%}%>>\
-                        <a class="first"><i class="icon-step-backward"/></a>\
+                        <a href="#" class="first"><i class="icon-step-backward"/></a>\
                     </li>\
                     <li <%if (page <= 1) {%> class="active"<%}%>>\
-                        <a class="left"><i class="icon-backward"/></a>\
+                        <a href="#" class="left"><i class="icon-backward"/></a>\
                     </li>\
                     <li>\
                         <div class="bbGrid-page-counter pull-left"><%=dict.page%>.</div>\
@@ -228,10 +243,10 @@
                         <div class="bbGrid-page-counter-right pull-right"> <%=dict.prep%> <%=cntpages%> </div>\
                     </li>\
                     <li<%if (page === cntpages || page === 0) {%> class="active"<%}%>>\
-                        <a class="right"><i class="icon-forward"/></a>\
+                        <a href="#" class="right"><i class="icon-forward"/></a>\
                     </li>\
                     <li<%if (page === cntpages || page === 0) {%> class="active"<%}%>>\
-                        <a class="last"><i class="icon-step-forward"/></a>\
+                        <a href="#" class="last"><i class="icon-step-forward"/></a>\
                     </li>\
                 </ul>\
                 </div>\
@@ -253,6 +268,7 @@
             this.view.render();
         },
         onPageChanged: function (event) {
+            event.preventDefault();
             this.view.trigger('pageChanged', event);
         },
         initPager: function () {
@@ -298,12 +314,17 @@
     bbGrid.PagerView.extend = Backbone.View.extend;
 
     bbGrid.TheadView = function (options) {
+        var self = this;
         this.events = {
             'click th': 'onSort',
             'click input[type=checkbox]': 'onAllCheckbox'
         };
         Backbone.View.apply(this, [options]);
         this.view = options.view;
+        _.bindAll(this, 'handleTrigger');
+        $(window).on('resize.rshandle', (function() {
+            self.refreshHandles();
+        }));
     };
 
     _.extend(bbGrid.TheadView.prototype, Backbone.View.prototype, {
@@ -311,11 +332,12 @@
         className: 'bbGrid-grid-head',
         template: _.template(
             '<% if (isMultiselect) {%>\
-                <th style="width:15px"><input type="checkbox"></th>\
+                <th style="width:15px" data-noresize><input type="checkbox"></th>\
             <%} if (isContainSubgrid) {%>\
-                <th style="width:15px"/>\
+                <th style="width:15px" data-noresize/>\
                 <%} _.each(cols, function (col) {%>\
-                    <th <%if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
+                    <th <% if (!col.resizable) {%> data-noresize <% } %>\
+                        <% if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
                         if (col.sortOrder === "asc" ) {%>class="icon-chevron-up"<%} else \
                             if (col.sortOrder === "desc" ) {%>class="icon-chevron-down"<% } %>/></th>\
             <%})%>', null, templateSettings
@@ -326,27 +348,127 @@
         onSort: function (event) {
             this.view.trigger('sort', event);
         },
-        render: function () {
-            var cols, theadHtml;
+        render: function (options) {
+            options || (options = {});
+            var cols, theadHtml, grid = this.view;
             if (!this.$headHolder) {
                 this.$headHolder = $('<tr/>', {'class': 'bbGrid-grid-head-holder'});
                 this.$el.append(this.$headHolder);
             }
-            cols = _.filter(this.view.colModel, function (col) {return !col.hidden; });
-            cols = _.map(cols, function (col) { col.title = col.title || col.name; return col; });
-            this.view.colLength = cols.length + (this.view.multiselect ? 1 : 0) + (this.view.subgrid && this.view.subgridControl ? 1 : 0);
+            cols = _.filter(grid.colModel, function (col) {return !col.hidden; });
+            this.cols = cols = _.map(cols, function (col) {
+                col.resizable = (col.resizable === undefined) ? grid.resizable : col.resizable;
+                col.title = col.title || col.name;
+                return col;
+            });
+            this.isResizable = grid.resizable || _.chain(cols).pluck('resizable').compact().value().length > 0;
+            grid.colLength = cols.length + (grid.multiselect ? 1 : 0) + (grid.subgrid && grid.subgridControl ? 1 : 0);
             theadHtml = this.template({
-                isMultiselect: this.view.multiselect,
-                isContainSubgrid: this.view.subgrid && this.view.subgridControl,
+                isMultiselect: grid.multiselect,
+                isContainSubgrid: grid.subgrid && grid.subgridControl,
                 cols: cols
             });
             this.$headHolder.html(theadHtml);
-            if (!this.view.$filterBar && this.view.enableFilter) {
-                this.view.filterBar = new this.view.entities.FilterView({ view: this.view });
-                this.view.$filterBar = this.view.filterBar.render();
-                this.$el.append(this.view.$filterBar);
+            if (!grid.$filterBar && grid.enableFilter) {
+                grid.filterBar = new grid.entities.FilterView({ view: grid });
+                grid.$filterBar = grid.filterBar.render();
+                this.$el.append(grid.$filterBar);
+            }
+            if (this.isResizable) {
+                this.$headers = this.$('.bbGrid-grid-head-holder th:visible');
+                if (!options.silent) {
+                    this.setHeadersWidthsInPerc();
+                }
+                this.createHandles();
             }
             return this.$el;
+        },
+        setHeadersWidthsInPerc: function () {
+            // important! first calculate all widths, then -> set.
+            var self = this, calculatedArray = [], grid = this.view;
+            this.$headers.each(function (index, el) {
+                var $el = $(el);
+                calculatedArray.push({
+                    dom: $el[0],
+                    width: $el.outerWidth() / grid.$grid.width() * 100,
+                    index: index
+                });
+            });
+            _(calculatedArray).each(function (el) {
+                self.setWidth(el.dom, el.width, el.index);
+            });
+        },
+        createHandles: function () {
+            var _ref, self = this, grid = this.view;
+            if ((_ref = this.$handleContainer) != null) {
+                _ref.remove();
+            }
+            grid.$grid.before((this.$handleContainer = $('<div class="bbGrid-rshandle-container" />')));
+            this.$headers.each(function (i, el) {
+                var $handle;
+                if (self.$headers.eq(i + 1).length === 0 || (self.$headers.eq(i).attr('data-noresize') != null)) {
+                    return;
+                }
+                $handle = $("<div class='bbGrid-rshandle' />");
+                $handle.data('th', $(el));
+                return $handle.appendTo(self.$handleContainer);
+            });
+            this.$handleContainer.on('mousedown touchstart', '.bbGrid-rshandle', this.handleTrigger);
+            this.refreshHandles();
+        },
+        refreshHandles: function () {
+            var self = this, grid = this.view;
+            if (!this.isResizable) {
+                return;
+            }
+            this.$handleContainer.width(grid.$grid.width()).find('.bbGrid-rshandle').each(function(_, el) {
+                var $el = $(el);
+                if (!$el.data('th')) {
+                    return $el;
+                }
+                return $el.css({
+                    top: grid.$grid.find('> caption').height(),
+                    left: $el.data('th').outerWidth() + ($el.data('th').offset().left - self.$handleContainer.offset().left),
+                    height: grid.resizeFromBody ? grid.$grid.height() : self.$el.height()
+                });
+            });
+        },
+        handleTrigger: function (e) {
+            var $currentGrip, $leftColumn, $rightColumn, startPosition, widths, leftColumnIndex,
+                rightColumnIndex, self = this, grid = this.view;
+            e.preventDefault();
+            startPosition = pointerX(e);
+            $currentGrip = $(e.currentTarget);
+            $leftColumn = $currentGrip.data('th');
+            leftColumnIndex = this.$headers.index($leftColumn);
+            $rightColumn = this.$headers.eq(leftColumnIndex + 1);
+            rightColumnIndex = this.$headers.index($rightColumn);
+            widths = {
+                left: parseWidth($leftColumn[0]),
+                right: parseWidth($rightColumn[0])
+            };
+            grid.$grid.addClass('bbGrid-table-resizing');
+            $(document).on('mousemove.rshandle touchmove.rshandle', function(e) {
+                var difference;
+                difference = (pointerX(e) - startPosition) / grid.$grid.width() * 100;
+                self.setWidth($rightColumn[0], widths.right - difference, rightColumnIndex);
+                self.setWidth($leftColumn[0], widths.left + difference, leftColumnIndex);
+            });
+            $(document).one('mouseup touchend', function() {
+                $(document).off('mousemove.rshandle touchmove.rshandle');
+                grid.$grid.removeClass('bbGrid-table-resizing');
+                self.refreshHandles();
+            });
+        },
+        setWidth: function (node, width, index) {
+            width = "" + width.toFixed(2) + "%";
+            if (index) {
+                index = index + (this.view.multiselect ? -1 : 0) + (this.view.subgrid && this.view.subgridControl ? -1 : 0);
+                if (this.cols[index]) {
+                    this.cols[index].width = width;
+                }
+            }
+            node.style.width = width;
         }
     });
 
@@ -504,11 +626,11 @@
                         <<% if (col.filterType === "input") \
                             {%>input<%}else{%>select<%\
                             }%> class="<%if (col.filterColName) {%><%=col.filterColName%><%}else{%><%=col.name %><%}%>" \
-                            name="filter" type="text" value="<%=filterOptions[col.name]%>">\
+                            name="filter" type="text" <% if (filterOptions[col.name]) { %>value="<%=filterOptions[col.name].value%>"<% } %>>\
                     <% if (col.filterType !== "input") {%>\
                     <option value=""><%=dict.all%></option>\
                         <% _.each(options[col.name], function (option) {%>\
-                            <option <% if (filterOptions[col.filterColName || col.name] === option) {%>\
+                            <option <% if (filterOptions[col.filterColName || col.name] && filterOptions[col.filterColName || col.name].value === option) {%>\
                                 selected="selected"<% } %>\
                                 value="<%=option%>"><%=option%></option>\
                         <%})%>\
@@ -524,9 +646,13 @@
         onFilter: function () {
             var text, self = this, collection;
             _.each($('*[name=filter]', this.$el), function (el) {
-                text = $.trim($(el).val());
+                var type = el.tagName.toLowerCase();
+                text = (type === 'select') ? $(el).val() : $.trim($(el).val());
                 if (text) {
-                    self.view.filterOptions[el.className] = text;
+                    self.view.filterOptions[el.className] = {
+                        value: text,
+                        filterType: type
+                    };
                 } else {
                     delete self.view.filterOptions[el.className];
                 }
@@ -535,7 +661,7 @@
                 collection = new Backbone.Collection(this.view._collection.models);
                 this.view.setCollection(collection);
                 if (_.keys(this.view.filterOptions).length) {
-                    self.filter(collection, _.clone(this.view.filterOptions));
+                    self.filter(collection, $.extend(true, {}, this.view.filterOptions));
                 }
             }
             this.view.trigger('filter', {silent: !this.view.loadDynamic});
@@ -543,7 +669,8 @@
         filter: function (collection, options) {
             var keys = _.keys(options), option,
                 key = _.first(keys),
-                text = options[key];
+                text = options[key] ? options[key].value : '',
+                filterType = options[key] ? options[key].filterType : '';
             if (!keys.length) {
                 return collection;
             }
@@ -552,7 +679,11 @@
                 collection.reset(_.filter(collection.models, function (model) {
                     option = model.get(key);
                     if (option) {
-                        return ("" + option).toLowerCase().indexOf(text.toLowerCase()) >= 0;
+                        if (filterType === 'select') {
+                            return ("" + option).toLowerCase() === text.toLowerCase();
+                        } else {
+                            return ("" + option).toLowerCase().indexOf(text.toLowerCase()) >= 0;
+                        }
                     } else {
                         return false;
                     }
@@ -628,6 +759,8 @@
     _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
         selectionEnabled: true,
         subgridControl: true,
+        resizable: false,
+        resizeFromBody: true,
         lang: bbGrid.lang,
         tagName: 'div',
         className: 'bbGrid-container',
@@ -865,7 +998,7 @@
             }
         },
         setRowSelected: function (options) {
-            var event = {}, className;
+            var event = {}, className = '';
             options || (options = {});
             if (!this.selectionEnabled) {
                 return false;
@@ -932,6 +1065,9 @@
         addModelsHandler: function (model, collection, options) {
             var index = this.collection.indexOf(model);
             if ((index + 1) === this.collection.length) {
+                if (this.sortSequence && this.sortSequence.length) {
+                    this.sortBy(this.sortSequence);
+                }
                 this.renderPage();
             }
         },
@@ -1031,7 +1167,7 @@
                     this.rsortBy(col);
                 }
             }
-            this.thead.render();
+            this.thead.render({silent: true});
             this.renderPage({silent: !this.loadDynamic});
         },
         onDblClick: function (model, $el) {
