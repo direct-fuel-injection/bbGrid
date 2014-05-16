@@ -21,7 +21,7 @@
 .bbGrid-container .bbGrid-loading .bbGrid-loading-progress{ width: 100%; line-height: 20px}
 .bbGrid-container .table{ margin: 0 }
 .bbGrid-container .bbGrid-pager-container{height: 26px; width: 380px; left: 50%; margin-left:-190px; position: absolute}
-.bbGrid-container .bbGrid-pager-container-norowslist{width: 200px; margin-left:-100px}
+.bbGrid-container .bbGrid-pager-container-norowslist{width: 205px; margin-left:-100px}
 .bbGrid-container .bbGrid-grid-nav{ margin: 0; background-color: #F5F5F5; background-repeat: repeat-x; border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) #A2A2A2; border-image: none; border-radius: 4px 4px 4px 4px; border-style: solid; border-width: 1px; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05); color: #333333; padding: 0 0 1px 1px; text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75); vertical-align: middle; position: relative; height: 28px}
 .bbGrid-container .bbGrid-subgrid-row:hover{ background-color: transparent}
 .bbGrid-container .bbGrid-pager{ margin: 2px 0 0; cursor: pointer}
@@ -35,7 +35,7 @@
 .bbGrid-container .bbGrid-page-counter {font-size: 11px; padding: 2px 0px 0px 4px}
 .bbGrid-container .bbGrid-page-counter-right {font-size: 11px; padding: 2px 2px 0px 4px}
 .bbGrid-container .bbGrid-grid-nav .bbGrid-page-input{float: left; padding: 1px; margin: 0 0 0 1px; width: 30px; font-size: 11px;text-align: center }
-.bbGrid-navBar-buttonsContainer {margin: 2px 0 0}
+.bbGrid-grid-nav .bbGrid-navBar-buttonsContainer {margin: 2px 0 0}
 .bbGrid-navBar-buttonsContainer button{margin-right: 1px}
 .bbGrid-container .bbGrid-grid-nav .bbGrid-pager-rowlist {width: 56px; margin-top: 2px; margin-left:2px; padding: 3px 2px; height: 24px; font-size: 11px}
 .bbGrid-pager-container .bbGrid-pager ul li {list-style:none;padding-left: 0;}
@@ -50,3 +50,7 @@
 .bbGrid-search-bar input, .bbGrid-search-bar button{padding: 1px 6px;}
 .bbGrid-search-bar input{ font-size: 12px}
 .bbGrid-search-bar li > a{font-size: 12px; padding-top: 1px; padding-bottom: 1px}
+.bbGrid-rshandle-container {position: relative;}
+.bbGrid-rshandle {position: absolute;width: 7px;cursor: ew-resize;margin-left: -3px;z-index: 2;}
+.bbGrid-table-resizing {cursor: ew-resize;}
+.bbGrid-table-resizing thead, .bbGrid-table-resizing thead > th, .bbGrid-table-resizing thead > th > a {cursor: ew-resize;}
