@@ -53,7 +53,7 @@
     viewOptions = ['autofetch', 'buttons', 'actions', 'colModel', 'container',
         'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows',
         'subgrid', 'subgridControl', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
-        'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded',
+        'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded', 'escape',
         'onRowCollapsed', 'events', 'searchList', 'sortSequence', 'resizable', 'resizeFromBody'];
 
     bbGrid.RowView = function (options) {
@@ -85,7 +85,7 @@
                     <% _.each(row.attributes, function (value, key) { %>\
                      <%=key%>="<%=value%>" \
                     <% }); %>>\
-                    <%=row.value%>\
+                    <% if (isEscaped || row.escape) { %><%=_.escape(row.value)%><% } else { %><%=row.value%><% } %>\
                 </td>\
             <%})%>', null, templateSettings
         ),
@@ -186,6 +186,7 @@
                 isSelected: this.selected || false,
                 isChecked: isChecked,
                 isDisabled: isDisabled,
+                isEscaped: this.view.escape,
                 values: _.map(cols, function (col) {
                     if (col.actions) {
                         col.name = 'bbGrid-actions-cell';
@@ -196,7 +197,7 @@
                             col.value = self.view.actions[col.actions].call(self, self.model.id, self.model.attributes, self.view);
                         }
                     } else {
-                        col.attributes = _.omit(col, 'name', 'value', 'className', 'title', 'editable', 'width', 'index',
+                        col.attributes = _.omit(col, 'name', 'value', 'className', 'title', 'editable', 'width', 'index', 'escape',
                             'hidden', 'sorttype', 'filter', 'filterType', 'sortOrder', 'filterColName', 'resizable', 'attributes');
                         col.value = self.getPropByStr(self.model.attributes, col.name);
                     }
@@ -757,6 +758,7 @@
     };
 
     _.extend(bbGrid.View.prototype, Backbone.View.prototype, {
+        escape: false,
         selectionEnabled: true,
         subgridControl: true,
         resizable: false,
