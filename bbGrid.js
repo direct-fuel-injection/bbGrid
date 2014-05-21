@@ -659,7 +659,7 @@
                 }
             });
             if (!this.view.loadDynamic) {
-                collection = new Backbone.Collection(this.view._collection.models);
+                collection = new this.view._collection.constructor(this.view._collection.models);
                 this.view.setCollection(collection);
                 if (_.keys(this.view.filterOptions).length) {
                     self.filter(collection, $.extend(true, {}, this.view.filterOptions));
@@ -679,7 +679,7 @@
             if (text.length > 0) {
                 collection.reset(_.filter(collection.models, function (model) {
                     option = model.get(key);
-                    if (option) {
+                    if (option !== undefined) {
                         if (filterType === 'select') {
                             return ("" + option).toLowerCase() === text.toLowerCase();
                         } else {
