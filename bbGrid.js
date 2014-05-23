@@ -17,6 +17,7 @@
 //                            Added parseInt to numberComparator, which is not working otherwise.
 //     07.04.2014, Dirk Bunk: Bugfix for setRowSelected function, where the model.id instead of model.cid was used.
 //     08.04.2014, Dirk Bunk: Automatically add 'odd' or 'even' class to rows.
+//     23.05.2014, Dirk Bunk: Fixed a layout issue for multiselect checkboxes.
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -343,7 +344,7 @@
         className: 'bbGrid-grid-head',
         template: _.template(
             '<% if (isMultiselect) {%>\
-                <th style="width:15px"><input type="checkbox"></th>\
+                <th style="width:22px"><input type="checkbox"></th>\
             <%} if (isContainSubgrid) {%>\
                 <th style="width:15px"/>\
                 <%} _.each(cols, function (col) {%>\
