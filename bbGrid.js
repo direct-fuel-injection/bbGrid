@@ -18,6 +18,7 @@
 //     07.04.2014, Dirk Bunk: Bugfix for setRowSelected function, where the model.id instead of model.cid was used.
 //     08.04.2014, Dirk Bunk: Automatically add 'odd' or 'even' class to rows.
 //     23.05.2014, Dirk Bunk: Fixed a layout issue for multiselect checkboxes.
+//     04.06.2014, Dirk Bunk: Automatically add 'odd' or 'even' class to subgrid-rows.
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -947,6 +948,13 @@
             View.expandedRowId = model.cid;
             if (this.onRowExpanded) {
                 this.onRowExpanded($('td', View.$subgridContainer)[0], model.cid);
+            }
+                        
+            // Check if the parent row is odd or even and add a class respectively
+            if (View.$subgridContainer.prev().is('.odd')) {
+            	View.$subgridContainer.addClass('odd');
+            } else {
+            	View.$subgridContainer.addClass('even');
             }
         },
         onCheckAll: function (event) {
