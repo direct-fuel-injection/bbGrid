@@ -4,7 +4,7 @@ That's an extendable grid system (jqGrid like) developed on Backbone.js, Twitter
 
 #### Requirements
 - Backbone.js > 1.0.0
-- Twitter Bootstrap v2.2.1
+- Twitter Bootstrap v3
 - jQuery v1.8.3
 
 Include bbGrid.js and bbGrid.css into your project. 
