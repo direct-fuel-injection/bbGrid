@@ -1,4 +1,4 @@
-//     bbGrid.js 0.8.5
+//     bbGrid.js 0.9.1
 
 //     (c) 2012-2013 Minin Alexey, direct-fuel-injection.
 //     bbGrid may be freely distributed under the MIT license.
@@ -78,7 +78,7 @@
             <td class="bbGrid-multiselect-control"><input type="checkbox" <% if (isDisabled) { %>disabled="disabled"<% } %><% if (isChecked) {%>checked="checked"<%}%>></td>\
             <%} if (isContainSubgrid) {%>\
                 <td class="bbGrid-subgrid-control">\
-                    <i class="icon-plus<%if (isSelected) {%> icon-minus<%}%>">\
+                    <i class="glyphicon glyphicon-plus<%if (isSelected) {%> glyphicon glyphicon-minus<%}%>">\
                 </td>\
             <%} _.each(values, function (row) {%>\
                 <td <% if (row.className) { %>class="<%=row.className%>"<% } %> contenteditable="<%=row.editable || false%>"\
@@ -198,7 +198,7 @@
                         }
                     } else {
                         col.attributes = _.omit(col, 'name', 'value', 'className', 'title', 'editable', 'width', 'index', 'escape',
-                            'hidden', 'sorttype', 'filter', 'filterType', 'sortOrder', 'filterColName', 'resizable', 'attributes');
+                            'hidden', 'sorttype', 'filter', 'filterType', 'sortOrder', 'filterColName', 'resizable', 'attributes', 'tooltip');
                         col.value = self.getPropByStr(self.model.attributes, col.name);
                     }
                     return col;
@@ -228,32 +228,32 @@
 
     _.extend(bbGrid.PagerView.prototype, Backbone.View.prototype, {
         tagName: 'div',
-        className: 'bbGrid-pager-container span offset',
+        className: 'bbGrid-pager-container span col-md-1 col-md-offset-1',
         template: _.template(
-            '<div class="span bbGrid-pager">\
+            '<div class="col-md-1 bbGrid-pager">\
                 <ul class="nav nav-pills">\
-                    <li<%if (page <= 1) {%> class="active"<%}%>>\
-                        <a href="#" class="first"><i class="icon-step-backward"/></a>\
+                    <li<%if (page <= 1) {%> class="disabled"<%}%>>\
+                        <a href="#" class="first"><i class="glyphicon glyphicon-step-backward"/></a>\
                     </li>\
-                    <li <%if (page <= 1) {%> class="active"<%}%>>\
-                        <a href="#" class="left"><i class="icon-backward"/></a>\
+                    <li <%if (page <= 1) {%> class="disabled"<%}%>>\
+                        <a href="#" class="left"><i class="glyphicon glyphicon-backward"/></a>\
                     </li>\
                     <li>\
                         <div class="bbGrid-page-counter pull-left"><%=dict.page%>.</div>\
-                        <input class="bbGrid-page-input" value="<%=page%>" type="text">\
+                        <input class="bbGrid-page-input form-control input-xs" value="<%=page%>" type="text">\
                         <div class="bbGrid-page-counter-right pull-right"> <%=dict.prep%> <%=cntpages%> </div>\
                     </li>\
-                    <li<%if (page === cntpages || page === 0) {%> class="active"<%}%>>\
-                        <a href="#" class="right"><i class="icon-forward"/></a>\
+                    <li<%if (page === cntpages || page === 0) {%> class="disabled"<%}%>>\
+                        <a href="#" class="right"><i class="glyphicon glyphicon-forward"/></a>\
                     </li>\
-                    <li<%if (page === cntpages || page === 0) {%> class="active"<%}%>>\
-                        <a href="#" class="last"><i class="icon-step-forward"/></a>\
+                    <li<%if (page === cntpages || page === 0) {%> class="disabled"<%}%>>\
+                        <a href="#" class="last"><i class="glyphicon glyphicon-step-forward"/></a>\
                     </li>\
                 </ul>\
                 </div>\
             <% if (rowlist) {%>\
                 <div class="bbGrid-pager-rowlist-label pull-left"><%=dict.rowsOnPage%>:</div>\
-                <select class="bbGrid-pager-rowlist">\
+                <select class="bbGrid-pager-rowlist form-control">\
                     <% _.each(rowlist, function (val) {%>\
                         <option value="<%=val.value%>" <% if (rows === val.value) {%>selected="selected"<%}%>><%=val.label%></option>\
                     <%})%>\
@@ -335,12 +335,13 @@
             '<% if (isMultiselect) {%>\
                 <th style="width:15px" data-noresize><input type="checkbox"></th>\
             <%} if (isContainSubgrid) {%>\
-                <th style="width:15px" data-noresize/>\
+                <th style="width:15px;" data-noresize/>\
                 <%} _.each(cols, function (col) {%>\
-                    <th <% if (!col.resizable) {%> data-noresize <% } %>\
+                    <th <% if (col.tooltip) {%> title="<%=col.tooltip%>" <% } %>\
+                        <% if (!col.resizable) {%> data-noresize <% } %>\
                         <% if (col.width) {%>style="width:<%=col.width%>"<%}%>><%=col.title%><i <% \
-                        if (col.sortOrder === "asc" ) {%>class="icon-chevron-up"<%} else \
-                            if (col.sortOrder === "desc" ) {%>class="icon-chevron-down"<% } %>/></th>\
+                        if (col.sortOrder === "asc" ) {%>class="glyphicon glyphicon-chevron-up"<%} else \
+                            if (col.sortOrder === "desc" ) {%>class="glyphicon glyphicon-chevron-down"<% } %>/></th>\
             <%})%>', null, templateSettings
         ),
         onAllCheckbox: function (event) {
@@ -463,7 +464,7 @@
         },
         setWidth: function (node, width, index) {
             width = "" + width.toFixed(2) + "%";
-            if (index) {
+            if (index >= 0) {
                 index = index + (this.view.multiselect ? -1 : 0) + (this.view.subgrid && this.view.subgridControl ? -1 : 0);
                 if (this.cols[index]) {
                     this.cols[index].width = width;
@@ -486,12 +487,12 @@
         render: function () {
             if (this.view.buttons) {
                 var self = this, btn, btnHtml, $button;
-                this.view.$buttonsContainer = $('<div/>', {'class': 'bbGrid-navBar-buttonsContainer btn-group span'});
+                this.view.$buttonsContainer = $('<div/>', {'class': 'bbGrid-navBar-buttonsContainer input-group-btn col-md-1'});
                 this.view.buttons = _.map(this.view.buttons, function (button) {
                     if (!button) {
                         return undefined;
                     }
-                    btn = _.template('<button <%if (id) {%>id="<%=id%>"<%}%> class="btn btn-mini" type="button"><%=title%></button>', null, templateSettings);
+                    btn = _.template('<button <%if (id) {%>id="<%=id%>"<%}%> class="btn btn-default btn-xs" type="button"><%=title%></button>', null, templateSettings);
                     btnHtml = button.html || btn({id: button.id, title: button.title});
                     $button = $(btnHtml).appendTo(self.view.$buttonsContainer);
                     if (button.onClick) {
@@ -529,12 +530,12 @@
         tagName: 'div',
         className: 'bbGrid-search-bar pull-right',
         template: _.template(
-            '<div class="input-append">\
-                <input name="search" class="span2" type="text" placeholder="<%=dict.search%>">\
-                <div class="btn-group dropup">\
-                    <button class="btn dropdown-toggle" data-toggle="dropdown">\
-                    <span name="column"><%=cols[0].title%></span>\
+            '<div class="input-group">\
+                <input name="search" class="bbGrid-pager col-md-2 form-control" type="text" placeholder="<%=dict.search%>">\
+                <div class="input-group-btn dropup">\
+                    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">\
                     <span class="caret"></span>\
+                    <span name="column"><%=cols[0].title%></span>\
                     </button>\
                     <ul class="dropdown-menu pull-right">\
                         <% _.each(cols, function (col, index) {%>\
@@ -626,7 +627,7 @@
                     <%if (col.filter) {%>\
                         <<% if (col.filterType === "input") \
                             {%>input<%}else{%>select<%\
-                            }%> class="<%if (col.filterColName) {%><%=col.filterColName%><%}else{%><%=col.name %><%}%>" \
+                            }%> class="form-control" data-colname="<%if (col.filterColName) {%><%=col.filterColName%><%}else{%><%=col.name %><%}%>" \
                             name="filter" type="text" <% if (filterOptions[col.name]) { %>value="<%=filterOptions[col.name].value%>"<% } %>>\
                     <% if (col.filterType !== "input") {%>\
                     <option value=""><%=dict.all%></option>\
@@ -647,15 +648,16 @@
         onFilter: function () {
             var text, self = this, collection;
             _.each($('*[name=filter]', this.$el), function (el) {
-                var type = el.tagName.toLowerCase();
+                var type = el.tagName.toLowerCase(),
+                    name = $(el).data('colname');
                 text = (type === 'select') ? $(el).val() : $.trim($(el).val());
                 if (text) {
-                    self.view.filterOptions[el.className] = {
+                    self.view.filterOptions[name] = {
                         value: text,
                         filterType: type
                     };
                 } else {
-                    delete self.view.filterOptions[el.className];
+                    delete self.view.filterOptions[name];
                 }
             });
             if (!this.view.loadDynamic) {
@@ -854,7 +856,7 @@
                 this.$el.css('width', this.width);
             }
             if (!this.$grid) {
-                this.$grid = $('<table class="bbGrid-grid table table-bordered table-condensed" />');
+                this.$grid = $('<table class="bbGrid-grid table table-curved table-condensed" />');
                 if (this.caption) {
                     this.$grid.append('<caption>' + this.caption + '</caption>');
                 }
@@ -869,7 +871,7 @@
                 this.navBar = new this.entities.NavView({view: this});
                 this.$navBar = this.navBar.render();
                 this.$grid.after(this.$navBar);
-                this.$loading = $('<div class="bbGrid-loading progress progress-info progress-striped active"><div class="bar bbGrid-loading-progress">' + this.dict.loading + '</div></div>');
+                this.$loading = $('<div class="bbGrid-loading progress"><div class="bar bbGrid-loading-progress progress-bar progress-bar-striped active">' + this.dict.loading + '</div></div>');
                 this.$navBar.prepend(this.$loading);
             }
             if (!this.$searchBar && this.enableSearch) {
@@ -1028,7 +1030,7 @@
                 });
             }
             if (View.$subgridContainer) {
-                $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('icon-minus');
+                $('td.bbGrid-subgrid-control i', View.$subgridContainer.prev()).removeClass('glyphicon-minus');
                 View.$subgridContainer.remove();
                 delete View.$subgridContainer;
                 if (View.expandedRowId === model.id && !options.isShown) {
@@ -1038,7 +1040,7 @@
                     return false;
                 }
             }
-            $('td.bbGrid-subgrid-control i', $el).addClass('icon-minus');
+            $('td.bbGrid-subgrid-control i', $el).addClass('glyphicon-minus');
             colspan = this.multiselect ? 2 : 1;
             colspan = this.subgridControl ? colspan : colspan - 1;
             subgridRow = _.template('<tr class="bbGrid-subgrid-row"><% if (control) { %><td colspan="<%=extra%>"/><% } %><td colspan="<%=colspan %>"></td></tr>', null, templateSettings);
@@ -1179,7 +1181,7 @@
         },
         onPageChanged: function (event) {
             var $el = $(event.currentTarget),
-                className = $el.attr('class'),
+                className = ($el.attr('class')).split(' ')[0],
                 page;
             switch (className) {
             case 'bbGrid-page-input':
