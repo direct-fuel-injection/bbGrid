@@ -51,7 +51,7 @@
     };
 
     viewOptions = ['autofetch', 'buttons', 'actions', 'colModel', 'container',
-        'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows',
+        'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows', 'caption',
         'subgrid', 'subgridControl', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
         'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded', 'escape',
         'onRowCollapsed', 'events', 'searchList', 'sortSequence', 'resizable', 'resizeFromBody'];
