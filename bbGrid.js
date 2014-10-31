@@ -50,7 +50,7 @@
         }
     };
 
-    viewOptions = ['autofetch', 'buttons', 'actions', 'colModel', 'container',
+    viewOptions = ['autofetch', 'buttons', 'actions', 'colModel', 'container', 'loadDynamic',
         'enableSearch', 'multiselect', 'rows', 'rowList', 'selectedRows', 'caption',
         'subgrid', 'subgridControl', 'subgridAccordion', 'onRowClick', 'onRowDblClick', 'onReady',
         'onBeforeRender', 'onBeforeCollectionRequest', 'onRowExpanded', 'escape',
