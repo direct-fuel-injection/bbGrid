@@ -2,15 +2,13 @@
 <html lang="en">
     <head>
         <meta charset='utf-8'>
-        <!--<link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />-->
-        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-        <!--<link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="stylesheets/bbGrid.css">
 
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>	
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="javascripts/bbGrid.js"></script>
         <script type="text/javascript" src="javascripts/main.js"></script>
 
@@ -21,17 +19,17 @@
         <title>Bbgrid based on Backbone and Twitter Bootstrap by direct-fuel-injection</title>
     </head>
     <body>
-        <div class="navbar navbar-fixed-top navbar-inverse">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="./index.html">bbGrid</a>
-                    <ul class="nav">
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="./index.html">bbGrid</a>
+                    <ul class="nav navbar-nav">
                         <li class="active"><a href="#home">Home</a></li>
                         <li><a href="#docs">Documentation</a></li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 Examples
-                                <i class="caret"></i>
+                                <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
@@ -53,17 +51,17 @@
                         </li>
                     </ul>
                 </div>
-            </div>
+            </nav>
         </div>
         <div class="container" style="margin-top: 60px">
-            <div id="home" class="hero-unit">
+            <div id="home" class="jumbotron">
                 <h1>bbGrid <small>by direct-fuel-injection</small></h1>
                 <p>is extendable grid based on backbone.js, jQuery and Twitter Bootstrap.</p>
                 <p>
-                    <a class="btn btn-primary btn-large" href="http://github.com/direct-fuel-injection/bbGrid">
+                    <a class="btn btn-primary btn-lg" href="http://github.com/direct-fuel-injection/bbGrid">
                         Fork me on Github
                     </a>
-                    <a class="btn btn-success btn-large" href="http://github.com/direct-fuel-injection/bbGrid/archive/0.8.5.zip">
+                    <a class="btn btn-success btn-lg" href="http://github.com/direct-fuel-injection/bbGrid/archive/0.8.5.zip">
                         Download latest realese
                     </a>
                 </p>
