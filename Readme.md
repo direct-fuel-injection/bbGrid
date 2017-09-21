@@ -9,5 +9,9 @@ That's an extendable grid system (jqGrid like) developed on Backbone.js, Bootstr
 - Bootstrap v3
 - jQuery v1.8.3
 
+#### Install
+
+`bower install bbGrid --save`
+
 Include bbGrid.js and bbGrid.css into your project. 
 [Documentation and examples.](http://direct-fuel-injection.github.com/bbGrid/)
