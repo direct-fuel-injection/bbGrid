@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "name": "bbGrid",
+  "main": "bbGrid.js",
+  "homepage": "https://github.com/daton89/bbGrid",
+  "authors": [
+    "daton <tonydangelo123@gmail.com>"
+  ],
+  "description": "Grid system on Backbone.js and Bootstrap, sure jQuery :)",
+  "keywords": [
+    "Backbone.js",
+    "Bootstrap",
+    "jQuery"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
